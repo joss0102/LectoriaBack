@@ -1,7 +1,7 @@
 -- Actualización del esquema de base de datos
-DROP DATABASE IF EXISTS TFG2;
-CREATE DATABASE TFG2;
-USE TFG2;
+DROP DATABASE IF EXISTS Lectoria;
+CREATE DATABASE Lectoria;
+USE Lectoria;
 
 -- Tabla de roles de usuario (definir antes de User)
 CREATE TABLE user_role (
@@ -845,10 +845,10 @@ BEGIN
         WHERE id = author_id;
         
         SELECT CONCAT('Autor "', 
-                     p_name, ' ', 
-                     COALESCE(p_last_name1, ''), ' ', 
-                     COALESCE(p_last_name2, ''),
-                     '" actualizado correctamente con ID ', author_id) AS mensaje;
+                        p_name, ' ', 
+                        COALESCE(p_last_name1, ''), ' ', 
+                        COALESCE(p_last_name2, ''),
+                        '" actualizado correctamente con ID ', author_id) AS mensaje;
     ELSE
         -- Si el autor no existe, lo creamos
         INSERT INTO author (name, last_name1, last_name2, description) 
@@ -1312,7 +1312,7 @@ CALL add_book_full(
     'El desarrollo de Aelin como líder es fascinante. Las escenas de acción son espectaculares y la forma en que se entrelazan las diferentes tramas es magistral. La química entre Aelin y Rowan es electrizante.', -- NUEVA descripción personalizada
     'Sarah','J.','Maas', -- Autor, apellido1, apellido2
     'Romantasy','Fantasía heroica','','','', -- géneros
-    'Una corte de rosas y espinas','joss0102','completed', -- saga, usuario, estado
+    'Trono de cristal','joss0102','completed', -- saga, usuario, estado
     '2025-03-30','2024-01-10','2024-01-16', -- fecha agregación, fechaInicio, fechaFin
     'Intenso, emocionante y lleno de momentos épicos. La transformación de Aelin es impresionante.', -- reseña
     10.00, -- puntuación (ajustada a 10.00)
@@ -1368,7 +1368,7 @@ CALL add_book_full(
     'Una historia ligera pero encantadora que muestra momentos cotidianos del Círculo Íntimo. Ideal para fans que quieren más interacciones entre los personajes favoritos sin grandes amenazas.', -- NUEVA descripción personalizada
     'Sarah','J.','Maas', -- Autor, apellido1, apellido2
     'Romance','Fantasía','','','', -- géneros
-    'Trono de cristal','joss0102','completed', -- saga, usuario, estado
+    'Una corte de rosas y espinas','joss0102','completed', -- saga, usuario, estado
     '2025-03-30','2024-01-23','2024-01-29', -- fecha agregación, fechaInicio, fechaFin
     'Historia corta y dulce para los fans de la saga, aunque menos sustancial que los libros principales.', -- reseña
     5.00, -- puntuación
