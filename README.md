@@ -1,7 +1,7 @@
 # **Proyecto Lectoria Backend**
 
 # **Descripción**
-
+ 
 Esta API proporciona un backend completo para una aplicación de gestión de lecturas. Permite a los usuarios registrar libros, hacer seguimiento de su progreso de lectura, escribir reseñas, y mucho más. La API está diseñada con una arquitectura de tres capas (modelos, servicios y rutas) y utiliza MySQL como base de datos.
 
 # **Características**
