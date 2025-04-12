@@ -40,6 +40,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
+pip install --upgrade mysql-connector-python # Si falla o no se instalo correctamente / version antigua
 ```
 3. Configure las variables de entorno en el archivo `.env`:
 
