@@ -51,6 +51,31 @@ class ReadingService:
         """
         return self.reading_model.delete_reading_progress(user_nickname, book_id)
     
+    def get_progress_by_id(self, progress_id):
+        """
+        Obtiene un registro de progreso de lectura por su ID.
+        
+        Args:
+            progress_id (int): ID del registro de progreso
+            
+        Returns:
+            dict: Información del progreso o None si no existe
+        """
+        return self.reading_model.get_progress_by_id(progress_id)
+
+    def update_reading_progress(self, progress_id, pages=None, date=None):
+        """
+        Actualiza un registro de progreso de lectura existente.
+        
+        Args:
+            progress_id (int): ID del registro de progreso a actualizar
+            pages (int, optional): Nuevo número de páginas leídas
+            date (str, optional): Nueva fecha de lectura (formato YYYY-MM-DD)
+            
+        Returns:
+            dict: Información del progreso actualizado o None si hubo un error
+        """
+        return self.reading_model.update_reading_progress(progress_id, pages, date)
     def get_book_reviews(self, book_title=None, user_nickname=None, page=1, page_size=10):
         """
         Obtiene reseñas de libros.

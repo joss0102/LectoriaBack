@@ -84,6 +84,109 @@ class ReadingModel:
         params = [nickname, book_title, pages_read_list, dates_list]
         return self.db.call_procedure("add_reading_progress_full", params)
     
+    def get_progress_by_id(self, progress_id):
+        """
+        Obtiene un registro de progreso de lectura por su ID.
+        
+        Args:
+            progress_id (int): ID del registro de progreso
+            
+        Returns:
+            dict: Información del progreso o None si no existe
+        """
+        try:
+            query = """
+                SELECT rp.id, rp.date, rp.pages, 
+                    b.id as book_id, b.title as book_title, 
+                    u.id as user_id, u.nickName as user_nickname
+                FROM reading_progress rp
+                JOIN book b ON rp.id_book = b.id
+                JOIN user u ON rp.id_user = u.id
+                WHERE rp.id = %s
+            """
+            results = self.db.execute_query(query, [progress_id])
+            return results[0] if results else None
+        except Exception as e:
+            print(f"Error al obtener progreso por ID: {e}")
+            return None
+
+    def update_reading_progress(self, progress_id, pages=None, date=None):
+        """
+        Actualiza un registro de progreso de lectura existente.
+        
+        Args:
+            progress_id (int): ID del registro de progreso a actualizar
+            pages (int, optional): Nuevo número de páginas leídas
+            date (str, optional): Nueva fecha de lectura (formato YYYY-MM-DD)
+            
+        Returns:
+            dict: Información del progreso actualizado o None si hubo un error
+        """
+        try:
+            # Obtener el progreso actual para verificar libro y usuario
+            current_progress = self.get_progress_by_id(progress_id)
+            if not current_progress:
+                print(f"Progreso con ID {progress_id} no encontrado")
+                return None
+            
+            # Construir la consulta de actualización dinámica
+            update_parts = []
+            params = []
+            
+            if pages is not None:
+                try:
+                    pages = int(pages)
+                    if pages <= 0:
+                        print(f"Error: El número de páginas debe ser mayor que cero")
+                        return None
+                    
+                    # Verificar que no exceda el total de páginas del libro
+                    book_query = "SELECT pages FROM book WHERE id = %s"
+                    book_result = self.db.execute_query(book_query, [current_progress['book_id']])
+                    
+                    if book_result and pages > book_result[0]['pages']:
+                        print(f"Error: El número de páginas ({pages}) excede el total del libro ({book_result[0]['pages']})")
+                        return None
+                        
+                    update_parts.append("pages = %s")
+                    params.append(pages)
+                except ValueError:
+                    print(f"Error: Valor de páginas no numérico: {pages}")
+                    return None
+            
+            if date is not None:
+                try:
+                    # Intentar parsear la fecha
+                    from datetime import datetime
+                    datetime.strptime(date, '%Y-%m-%d')
+                    
+                    update_parts.append("date = %s")
+                    params.append(date)
+                except ValueError:
+                    print(f"Error: Formato de fecha inválido: {date}. Use YYYY-MM-DD")
+                    return None
+            
+            if not update_parts:
+                print("No se proporcionaron campos para actualizar")
+                return current_progress
+            
+            # Completar la consulta
+            query = f"UPDATE reading_progress SET {', '.join(update_parts)} WHERE id = %s"
+            params.append(progress_id)
+            
+            # Ejecutar la actualización
+            result = self.db.execute_update(query, params)
+            if result <= 0:
+                print(f"No se actualizó ningún registro para el progreso {progress_id}")
+                return None
+            
+            # Obtener el progreso actualizado
+            return self.get_progress_by_id(progress_id)
+        except Exception as e:
+            print(f"Error al actualizar progreso de lectura: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
     def delete_reading_progress(self, user_nickname, book_id):
         """
         Elimina el progreso de lectura de un libro específico para un usuario.

@@ -483,35 +483,66 @@ class BookModel:
             bool: True si la eliminación fue exitosa, False en caso contrario
         """
         try:
+            # Asegurarse de que book_id es un entero
+            book_id = int(book_id)
+            
             # Obtener el ID del usuario
             user_query = "SELECT id FROM user WHERE nickName = %s"
             user_result = self.db.execute_query(user_query, [user_nickname])
             
             if not user_result:
+                print(f"Usuario {user_nickname} no encontrado")
                 return False
-            
+                
             user_id = user_result[0]['id']
+            
+            # Verificar si la relación existe antes de eliminar
+            check_query = "SELECT 1 FROM user_has_book WHERE id_user = %s AND id_book = %s"
+            exists = self.db.execute_query(check_query, [user_id, book_id])
+            print(f"¿Relación existe antes de eliminar? {bool(exists)}")
+            
+            if not exists:
+                print(f"La relación entre usuario {user_nickname} y libro {book_id} no existe")
+                return False
             
             # Eliminar relaciones en otras tablas
             # Eliminar notas del libro para este usuario
-            self.db.execute_update("DELETE FROM book_note WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            note_result = self.db.execute_update("DELETE FROM book_note WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Notas eliminadas: {note_result}")
             
             # Eliminar frases del libro para este usuario
-            self.db.execute_update("DELETE FROM phrase WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            phrase_result = self.db.execute_update("DELETE FROM phrase WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Frases eliminadas: {phrase_result}")
             
             # Eliminar reseñas del libro para este usuario
-            self.db.execute_update("DELETE FROM review WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            review_result = self.db.execute_update("DELETE FROM review WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Reseñas eliminadas: {review_result}")
             
             # Eliminar progreso de lectura para este usuario
-            self.db.execute_update("DELETE FROM reading_progress WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            progress_result = self.db.execute_update("DELETE FROM reading_progress WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Progreso de lectura eliminado: {progress_result}")
             
             # Eliminar descripciones de usuario
-            self.db.execute_update("DELETE FROM user_book_description WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            desc_result = self.db.execute_update("DELETE FROM user_book_description WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Descripciones eliminadas: {desc_result}")
             
             # Eliminar relación usuario-libro
-            self.db.execute_update("DELETE FROM user_has_book WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            relation_result = self.db.execute_update("DELETE FROM user_has_book WHERE id_user = %s AND id_book = %s", [user_id, book_id])
+            print(f"Relación usuario-libro eliminada: {relation_result}")
+            
+            # Verificar si la relación aún existe después de eliminar
+            exists_after = self.db.execute_query(check_query, [user_id, book_id])
+            print(f"¿Relación existe después de eliminar? {bool(exists_after)}")
+            
+            # Verificar si las operaciones fueron exitosas
+            if relation_result == 0:
+                print("No se eliminó ninguna fila de user_has_book")
+                # Esto es inusual ya que verificamos que existe antes
+                return False
             
             return True
         except Exception as e:
             print(f"Error al eliminar libro de la colección del usuario: {e}")
+            import traceback
+            traceback.print_exc()
             return False

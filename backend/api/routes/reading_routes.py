@@ -54,6 +54,36 @@ def add_reading_progress():
     else:
         return jsonify({"error": "Error al añadir el progreso de lectura"}), 500
 
+@reading_bp.route('/progress/<int:progress_id>', methods=['PUT'])
+def update_reading_progress(progress_id):
+    """
+    Actualiza un registro de progreso de lectura existente.
+    """
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error": "Datos no proporcionados"}), 400
+    
+    # Verificar que el progreso existe
+    existing_progress = reading_service.get_progress_by_id(progress_id)
+    if not existing_progress:
+        return jsonify({"error": f"Progreso con ID {progress_id} no encontrado"}), 404
+    
+    # Extraer campos del JSON
+    pages = data.get('pages')
+    date = data.get('date')
+    
+    # Al menos un campo debe proporcionarse
+    if pages is None and date is None:
+        return jsonify({"error": "Se debe proporcionar al menos un campo para actualizar (pages o date)"}), 400
+    
+    result = reading_service.update_reading_progress(progress_id, pages, date)
+    
+    if result:
+        return jsonify({"message": "Progreso de lectura actualizado correctamente", "data": result})
+    else:
+        return jsonify({"error": "Error al actualizar el progreso de lectura"}), 500
+
 @reading_bp.route('/reviews', methods=['GET'])
 def get_book_reviews():
     """
