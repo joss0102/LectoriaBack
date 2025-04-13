@@ -14,8 +14,8 @@ class DatabaseConnection:
         # Configuración de la conexión desde variables de entorno
         self.config = {
             'host': os.getenv('DB_HOST', 'localhost'),
-            'database': os.getenv('DB_NAME', 'Lectoria'),
-            'user': os.getenv('DB_USER', 'Lectoria'),
+            'database': os.getenv('DB_NAME', 'lectoria'),
+            'user': os.getenv('DB_USER', 'lectoria'),
             'password': os.getenv('DB_PASSWORD', '1234'),
             'port': os.getenv('DB_PORT', '3306')
         }
@@ -71,6 +71,29 @@ class DatabaseConnection:
         finally:
             if cursor:
                 cursor.close()
+    
+    def execute_update(self, query, params=None):
+        """
+        Ejecuta una consulta SQL de actualización (INSERT, UPDATE, DELETE).
+        
+        Args:
+            query (str): Consulta SQL
+            params (list, optional): Parámetros para la consulta
+            
+        Returns:
+            int: Número de filas afectadas
+        """
+        return self.execute_query(query, params)
+    
+    def get_last_id(self):
+        """
+        Obtiene el último ID insertado en la base de datos.
+        
+        Returns:
+            int: Último ID insertado
+        """
+        result = self.execute_query("SELECT LAST_INSERT_ID() as last_id")
+        return result[0]['last_id'] if result else None
     
     def call_procedure(self, procedure_name, params=None):
         """

@@ -55,3 +55,45 @@ class AuthorService:
             dict: Resultado de la operación
         """
         return self.author_model.add_author(name, last_name1, last_name2, description)
+        
+    def update_author(self, author_id, name=None, last_name1=None, last_name2=None, description=None):
+        """
+        Actualiza la información de un autor existente.
+        
+        Args:
+            author_id (int): ID del autor a actualizar
+            name (str, optional): Nuevo nombre
+            last_name1 (str, optional): Nuevo primer apellido
+            last_name2 (str, optional): Nuevo segundo apellido
+            description (str, optional): Nueva descripción
+            
+        Returns:
+            dict: Información del autor actualizado o None si hubo un error
+        """
+        return self.author_model.update_author(author_id, name, last_name1, last_name2, description)
+        
+    def delete_author(self, author_id):
+        """
+        Elimina un autor por su ID.
+        
+        Args:
+            author_id (int): ID del autor a eliminar
+            
+        Returns:
+            bool: True si la eliminación fue exitosa, False en caso contrario
+        """
+        return self.author_model.delete_author(author_id)
+        
+    def search_authors(self, search_term, page=1, page_size=10):
+        """
+        Busca autores por nombre o apellidos.
+        
+        Args:
+            search_term (str): Término de búsqueda
+            page (int): Número de página
+            page_size (int): Tamaño de la página
+            
+        Returns:
+            dict: Resultado con autores y metadatos de paginación
+        """
+        return self.author_model.search_authors(search_term, page, page_size)

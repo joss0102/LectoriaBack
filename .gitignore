@@ -1,6 +1,15 @@
+# archivo de server
 **/__pycache__/
-fase2-python.md
-fase3-python.md
-fase1-python.md
+# .md no relevantes
 Python.md
+
 tokens-python.md
+estructura.md
+# .md Comportamiento api
+books.md
+
+authors.md
+
+reading.md
+
+users.md
