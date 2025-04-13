@@ -14,8 +14,8 @@ class DatabaseConnection:
         # Configuración de la conexión desde variables de entorno
         self.config = {
             'host': os.getenv('DB_HOST', 'localhost'),
-            'database': os.getenv('DB_NAME', 'lectoria'),
-            'user': os.getenv('DB_USER', 'lectoria'),
+            'database': os.getenv('DB_NAME', 'Lectoria'),
+            'user': os.getenv('DB_USER', 'Lectoria'),
             'password': os.getenv('DB_PASSWORD', '1234'),
             'port': os.getenv('DB_PORT', '3306')
         }
