@@ -1,5 +1,26 @@
+# Base de datos
 mysql-connector-python==8.0.31
+
+# Variables de entorno
 python-dotenv==1.0.0
+
+# Framework Web
 Flask==2.3.3
 Flask-CORS==4.0.0
+Werkzeug==2.3.7  # Mantener compatible con Flask 2.3.3
+
+# Autenticación
 PyJWT==2.7.0
+
+# Servidor WSGI (para producción)
+gunicorn==21.2.0
+gevent==24.2.1
+
+# Caching
+Flask-Caching==2.1.0
+
+# Manejo de errores y monitoreo
+sentry-sdk==1.40.4
+
+# Utilidades
+python-dateutil==2.8.2

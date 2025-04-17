@@ -1,5 +1,10 @@
 from config.database import DatabaseConnection
+from utils.cache import cache, invalidate_cache_for
+from config.settings import ENABLE_CACHE
+import logging
+from utils.query_helper import build_conditional_query, build_pagination_response
 
+logger = logging.getLogger('book_model')
 class BookModel:
     """
     Modelo para operaciones relacionadas con libros.
@@ -7,6 +12,7 @@ class BookModel:
     def __init__(self):
         self.db = DatabaseConnection()
     
+    @cache.memoize(timeout=300) if ENABLE_CACHE else lambda f: f
     def get_all_books(self, page=1, page_size=10):
         """
         Obtiene todos los libros con paginación.
@@ -18,10 +24,15 @@ class BookModel:
         Returns:
             list: Lista de libros
         """
-        offset = (page - 1) * page_size
-        query = "SELECT * FROM vw_book_complete_info LIMIT %s OFFSET %s"
-        return self.db.execute_query(query, [page_size, offset])
+        try:
+            offset = (page - 1) * page_size
+            query = "SELECT * FROM vw_book_complete_info LIMIT %s OFFSET %s"
+            return self.db.execute_query(query, [page_size, offset])
+        except Exception as e:
+            logger.error(f"Error al obtener todos los libros: {e}")
+            return []
     
+    @cache.memoize(timeout=300) if ENABLE_CACHE else lambda f: f
     def get_book_by_id(self, book_id):
         """
         Obtiene un libro por su ID.
@@ -32,9 +43,13 @@ class BookModel:
         Returns:
             dict: Información del libro o None si no existe
         """
-        query = "SELECT * FROM vw_book_complete_info WHERE book_id = %s"
-        results = self.db.execute_query(query, [book_id])
-        return results[0] if results else None
+        try:
+            query = "SELECT * FROM vw_book_complete_info WHERE book_id = %s"
+            results = self.db.execute_query(query, [book_id])
+            return results[0] if results else None
+        except Exception as e:
+            logger.error(f"Error al obtener libro por ID {book_id}: {e}")
+            return None
     
     def get_books_by_genre(self, genre):
         """
@@ -99,12 +114,10 @@ class BookModel:
         Returns:
             bool: True si la actualización fue exitosa, False en caso contrario
         """
-        # Primero obtenemos la información actual del libro
         current_book = self.get_book_by_id(book_id)
         if not current_book:
             return False
         
-        # Actualizar el libro básico (título y páginas)
         if title or pages:
             update_params = []
             query_parts = []
@@ -122,7 +135,6 @@ class BookModel:
                 update_params.append(book_id)
                 self.db.execute_update(query, update_params)
         
-        # Actualizar la sinopsis si se proporciona
         if synopsis:
             # Verificar si ya existe una sinopsis para este libro
             check_query = "SELECT id FROM synopsis WHERE id_book = %s"
@@ -236,46 +248,58 @@ class BookModel:
             bool: True si la eliminación fue exitosa, False en caso contrario
         """
         try:
-            # Primero eliminamos las relaciones en otras tablas
-            # Eliminar sinopsis
-            self.db.execute_update("DELETE FROM synopsis WHERE id_book = %s", [book_id])
-            
-            # Eliminar relaciones en book_has_author
-            self.db.execute_update("DELETE FROM book_has_author WHERE id_book = %s", [book_id])
-            
-            # Eliminar relaciones en book_has_genre
-            self.db.execute_update("DELETE FROM book_has_genre WHERE id_book = %s", [book_id])
-            
-            # Eliminar relaciones en book_has_saga
-            self.db.execute_update("DELETE FROM book_has_saga WHERE id_book = %s", [book_id])
-            
-            # Eliminar notas del libro
-            self.db.execute_update("DELETE FROM book_note WHERE id_book = %s", [book_id])
-            
-            # Eliminar frases del libro
-            self.db.execute_update("DELETE FROM phrase WHERE id_book = %s", [book_id])
-            
-            # Eliminar reseñas del libro
-            self.db.execute_update("DELETE FROM review WHERE id_book = %s", [book_id])
-            
-            # Eliminar progreso de lectura
-            self.db.execute_update("DELETE FROM reading_progress WHERE id_book = %s", [book_id])
-            
-            # Eliminar descripciones de usuario
-            self.db.execute_update("DELETE FROM user_book_description WHERE id_book = %s", [book_id])
-            
-            # Eliminar relaciones usuario-libro
-            self.db.execute_update("DELETE FROM user_has_book WHERE id_book = %s", [book_id])
-            
-            # Finalmente eliminamos el libro
-            delete_query = "DELETE FROM book WHERE id = %s"
-            self.db.execute_update(delete_query, [book_id])
-            
-            return True
+            # Iniciar transacción manual para garantizar consistencia
+            with self.db.get_connection() as connection:
+                cursor = connection.cursor()
+                
+                # Lista de tablas relacionadas en orden de dependencia
+                related_tables = [
+                    "synopsis", 
+                    "book_has_author", 
+                    "book_has_genre", 
+                    "book_has_saga", 
+                    "book_note", 
+                    "phrase", 
+                    "review", 
+                    "reading_progress", 
+                    "user_book_description", 
+                    "user_has_book"
+                ]
+                
+                try:
+                    # Eliminar registros relacionados en cada tabla
+                    for table in related_tables:
+                        delete_query = f"DELETE FROM {table} WHERE id_book = %s"
+                        cursor.execute(delete_query, [book_id])
+                        logger.debug(f"Eliminados {cursor.rowcount} registros de {table}")
+                    
+                    # Finalmente, eliminar el libro
+                    cursor.execute("DELETE FROM book WHERE id = %s", [book_id])
+                    affected_rows = cursor.rowcount
+                    
+                    # Commit de la transacción
+                    connection.commit()
+                    
+                    # Invalidar caché relacionada
+                    if ENABLE_CACHE:
+                        invalidate_cache_for(f"get_book_by_id_{book_id}")
+                        invalidate_cache_for("get_all_books")
+                    
+                    logger.info(f"Libro con ID {book_id} eliminado correctamente")
+                    return affected_rows > 0
+                    
+                except Exception as e:
+                    # Rollback en caso de error
+                    connection.rollback()
+                    logger.error(f"Error durante la eliminación del libro {book_id}: {e}")
+                    return False
+                finally:
+                    cursor.close()
+                    
         except Exception as e:
-            print(f"Error al eliminar libro: {e}")
+            logger.error(f"Error al eliminar libro {book_id}: {e}")
             return False
-    
+        
     def get_books_by_user(self, user_nickname, status=None, page=1, page_size=10):
         """
         Obtiene todos los libros asociados a un usuario.
@@ -491,7 +515,7 @@ class BookModel:
             user_result = self.db.execute_query(user_query, [user_nickname])
             
             if not user_result:
-                print(f"Usuario {user_nickname} no encontrado")
+                logger.warning(f"Usuario {user_nickname} no encontrado")
                 return False
                 
             user_id = user_result[0]['id']
@@ -499,50 +523,49 @@ class BookModel:
             # Verificar si la relación existe antes de eliminar
             check_query = "SELECT 1 FROM user_has_book WHERE id_user = %s AND id_book = %s"
             exists = self.db.execute_query(check_query, [user_id, book_id])
-            print(f"¿Relación existe antes de eliminar? {bool(exists)}")
+            logger.debug(f"¿Relación existe antes de eliminar? {bool(exists)}")
             
             if not exists:
-                print(f"La relación entre usuario {user_nickname} y libro {book_id} no existe")
+                logger.warning(f"La relación entre usuario {user_nickname} y libro {book_id} no existe")
                 return False
             
-            # Eliminar relaciones en otras tablas
-            # Eliminar notas del libro para este usuario
-            note_result = self.db.execute_update("DELETE FROM book_note WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Notas eliminadas: {note_result}")
-            
-            # Eliminar frases del libro para este usuario
-            phrase_result = self.db.execute_update("DELETE FROM phrase WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Frases eliminadas: {phrase_result}")
-            
-            # Eliminar reseñas del libro para este usuario
-            review_result = self.db.execute_update("DELETE FROM review WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Reseñas eliminadas: {review_result}")
-            
-            # Eliminar progreso de lectura para este usuario
-            progress_result = self.db.execute_update("DELETE FROM reading_progress WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Progreso de lectura eliminado: {progress_result}")
-            
-            # Eliminar descripciones de usuario
-            desc_result = self.db.execute_update("DELETE FROM user_book_description WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Descripciones eliminadas: {desc_result}")
-            
-            # Eliminar relación usuario-libro
-            relation_result = self.db.execute_update("DELETE FROM user_has_book WHERE id_user = %s AND id_book = %s", [user_id, book_id])
-            print(f"Relación usuario-libro eliminada: {relation_result}")
-            
-            # Verificar si la relación aún existe después de eliminar
-            exists_after = self.db.execute_query(check_query, [user_id, book_id])
-            print(f"¿Relación existe después de eliminar? {bool(exists_after)}")
-            
-            # Verificar si las operaciones fueron exitosas
-            if relation_result == 0:
-                print("No se eliminó ninguna fila de user_has_book")
-                # Esto es inusual ya que verificamos que existe antes
-                return False
-            
-            return True
+            # Usar transacción para garantizar la eliminación atómica
+            with self.db.get_connection() as connection:
+                cursor = connection.cursor()
+                
+                try:
+                    # Lista de tablas relacionadas en orden
+                    related_tables = [
+                        "book_note",
+                        "phrase",
+                        "review",
+                        "reading_progress",
+                        "user_book_description",
+                        "user_has_book"
+                    ]
+                    
+                    # Eliminar registros en cada tabla
+                    for table in related_tables:
+                        delete_query = f"DELETE FROM {table} WHERE id_user = %s AND id_book = %s"
+                        cursor.execute(delete_query, [user_id, book_id])
+                        logger.debug(f"Eliminados {cursor.rowcount} registros de {table}")
+                    
+                    # Commit de la transacción
+                    connection.commit()
+                    
+                    # Verificar si la relación aún existe
+                    cursor.execute(check_query, [user_id, book_id])
+                    exists_after = cursor.fetchall()
+                    logger.debug(f"¿Relación existe después de eliminar? {bool(exists_after)}")
+                    
+                    return True
+                except Exception as e:
+                    connection.rollback()
+                    logger.error(f"Error durante la eliminación de la relación usuario-libro: {e}")
+                    return False
+                finally:
+                    cursor.close()
+                    
         except Exception as e:
-            print(f"Error al eliminar libro de la colección del usuario: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error al eliminar libro de la colección del usuario: {e}")
             return False

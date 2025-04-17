@@ -1,6 +1,9 @@
 from models.user import UserModel
 from models.token import TokenModel
 from utils.auth import generate_access_token, generate_refresh_token, decode_token
+import logging
+
+logger = logging.getLogger('auth')
 
 class AuthService:
     """
@@ -22,27 +25,34 @@ class AuthService:
         Returns:
             dict: Tokens de acceso y refresco si la autenticación es exitosa, None en caso contrario
         """
-        user = self.user_model.authenticate(nickname, password)
-        
-        if not user:
-            return None
+        try:
+            user = self.user_model.authenticate(nickname, password)
             
-        # Generar tokens
-        access_token = generate_access_token(user)
-        refresh_token = generate_refresh_token(user)
-        
-        return {
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'user': {
-                'id': user['id'],
-                'nickname': user['nickName'],
-                'name': user['name'],
-                'last_name1': user['last_name1'],
-                'last_name2': user['last_name2'],
-                'role': user['role_name']
+            if not user:
+                logger.warning(f"Intento de login fallido para usuario: {nickname}")
+                return None
+                
+            # Generar tokens
+            access_token = generate_access_token(user)
+            refresh_token = generate_refresh_token(user)
+            
+            logger.info(f"Login exitoso para usuario: {nickname}")
+            
+            return {
+                'access_token': access_token,
+                'refresh_token': refresh_token,
+                'user': {
+                    'id': user['id'],
+                    'nickname': user['nickName'],
+                    'name': user['name'],
+                    'last_name1': user['last_name1'],
+                    'last_name2': user['last_name2'],
+                    'role': user['role_name']
+                }
             }
-        }
+        except Exception as e:
+            logger.error(f"Error en login: {e}")
+            return None
     
     def refresh(self, refresh_token):
         """
@@ -61,17 +71,22 @@ class AuthService:
             token_data = decode_token(refresh_token)
             
             if token_data.get('type') != 'refresh':
+                logger.warning(f"Intento de refresh con token no válido: {token_data.get('type')}")
                 return None
                 
             if self.token_model.is_token_revoked(token_data):
+                logger.warning(f"Intento de refresh con token revocado: {token_data.get('sub')}")
                 return None
                 
             user = self.user_model.get_user_by_nickname(token_data['sub'])
             
             if not user:
+                logger.warning(f"Usuario no encontrado en refresh: {token_data.get('sub')}")
                 return None
                 
             access_token = generate_access_token(user)
+            
+            logger.info(f"Refresh exitoso para usuario: {user['nickName']}")
             
             return {
                 'access_token': access_token,
@@ -85,7 +100,7 @@ class AuthService:
                 }
             }
         except Exception as e:
-            print(f"Error en refresh: {e}")
+            logger.error(f"Error en refresh: {e}")
             raise
     
     def logout(self, access_token, refresh_token=None):
@@ -110,11 +125,44 @@ class AuthService:
                     refresh_token_data = decode_token(refresh_token)
                     self.token_model.add_token_to_blacklist(refresh_token_data, user_id)
                 except Exception as e:
-                    print(f"Error al revocar token de refresco: {e}")
+                    logger.warning(f"Error al revocar token de refresco: {e}")
             
-            self.token_model.clean_expired_tokens()
+            self.token_model._cleanup_expired_tokens()
             
+            logger.info(f"Logout exitoso para usuario ID: {user_id}")
             return True
         except Exception as e:
-            print(f"Error en logout: {e}")
+            logger.error(f"Error en logout: {e}")
             return False
+    
+    def verify_token(self, token):
+        """
+        Verifica si un token es válido y no está revocado.
+        
+        Args:
+            token (str): Token a verificar
+            
+        Returns:
+            dict: Información del usuario si el token es válido, None en caso contrario
+        """
+        try:
+            token_data = decode_token(token)
+            
+            if self.token_model.is_token_revoked(token_data):
+                logger.warning(f"Token revocado usado: {token_data.get('sub')}")
+                return None
+                
+            user = self.user_model.get_user_by_nickname(token_data['sub'])
+            
+            if not user:
+                logger.warning(f"Usuario no encontrado en verificación: {token_data.get('sub')}")
+                return None
+                
+            return {
+                'id': user['id'],
+                'nickname': user['nickName'],
+                'role': user['role_name']
+            }
+        except Exception as e:
+            logger.error(f"Error en verificación de token: {e}")
+            return None

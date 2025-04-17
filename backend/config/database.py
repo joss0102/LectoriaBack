@@ -1,42 +1,113 @@
 import mysql.connector
-from mysql.connector import Error
+from mysql.connector import Error, pooling
 import os
 from dotenv import load_dotenv
+import logging
+from contextlib import contextmanager
+
+# Configurar logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger("database")
 
 # Cargar variables de entorno
 load_dotenv()
 
 class DatabaseConnection:
     """
-    Clase para manejar la conexión a la base de datos MySQL.
+    Clase para manejar la conexión a la base de datos MySQL con pool de conexiones.
     """
-    def __init__(self):
-        # Configuración de la conexión desde variables de entorno
-        self.config = {
-            'host': os.getenv('DB_HOST', 'localhost'),
-            'database': os.getenv('DB_NAME', 'Lectoria'),
-            'user': os.getenv('DB_USER', 'Lectoria'),
-            'password': os.getenv('DB_PASSWORD', '1234'),
-            'port': os.getenv('DB_PORT', '3306')
-        }
-        self.connection = None
+    _instance = None
+    _pool = None
     
-    def connect(self):
-        """Establece la conexión a la base de datos."""
+    def __new__(cls):
+        """Implementa el patrón Singleton para evitar múltiples instancias del pool de conexiones."""
+        if cls._instance is None:
+            cls._instance = super(DatabaseConnection, cls).__new__(cls)
+            cls._create_pool()
+        return cls._instance
+    
+    @classmethod
+    def _create_pool(cls):
+        """Crea un pool de conexiones a la base de datos."""
         try:
-            if self.connection is None or not self.connection.is_connected():
-                self.connection = mysql.connector.connect(**self.config)
-                print("Conectado a la base de datos MySQL")
-            return self.connection
+            # Configuración de la conexión desde variables de entorno
+            config = {
+                'host': os.getenv('DB_HOST', 'localhost'),
+                'database': os.getenv('DB_NAME', 'Lectoria'),
+                'user': os.getenv('DB_USER', 'Lectoria'),
+                'password': os.getenv('DB_PASSWORD', '1234'),
+                'port': os.getenv('DB_PORT', '3306'),
+                'pool_name': 'lectoria_pool',
+                'pool_size': 10,
+                'pool_reset_session': True,
+                'connect_timeout': 30,  # Timeout para conexiones
+                'connection_timeout': 30
+            }
+            
+            cls._pool = pooling.MySQLConnectionPool(**config)
+            logger.info("Pool de conexiones a MySQL inicializado")
         except Error as e:
-            print(f"Error al conectar a MySQL: {e}")
-            return None
+            logger.error(f"Error al crear el pool de conexiones a MySQL: {e}")
+            raise
     
-    def disconnect(self):
-        """Cierra la conexión a la base de datos."""
-        if self.connection and self.connection.is_connected():
-            self.connection.close()
-            print("Conexión a MySQL cerrada")
+    @contextmanager
+    def get_connection(self):
+        """
+        Obtiene una conexión del pool usando el patrón contextmanager.
+        Esto garantiza que la conexión se devuelva al pool correctamente.
+        
+        Yields:
+            connection: Conexión a la base de datos desde el pool
+        """
+        connection = None
+        try:
+            if self._pool is None:
+                self._create_pool()
+                
+            connection = self._pool.get_connection()
+            if not connection.is_connected():
+                connection.reconnect()
+                
+            yield connection
+        except Error as e:
+            logger.error(f"Error al obtener conexión del pool: {e}")
+            raise
+        finally:
+            if connection is not None:
+                connection.close()
+                logger.debug("Conexión devuelta al pool")
+    
+    @contextmanager
+    def get_cursor(self, dictionary=True):
+        """
+        Obtiene un cursor para ejecutar queries con manejo automático de conexiones.
+        
+        Args:
+            dictionary (bool): Si True, devuelve resultados como diccionarios
+            
+        Yields:
+            cursor: Cursor para ejecutar queries
+        """
+        with self.get_connection() as connection:
+            cursor = None
+            try:
+                cursor = connection.cursor(dictionary=dictionary)
+                yield cursor
+                connection.commit()
+            except Error as e:
+                connection.rollback()
+                logger.error(f"Error de base de datos: {e}")
+                raise
+            finally:
+                if cursor is not None:
+                    cursor.close()
     
     def execute_query(self, query, params=None):
         """
@@ -50,27 +121,18 @@ class DatabaseConnection:
             list: Resultados de la consulta si es SELECT/SHOW
             int: Número de filas afectadas si es INSERT/UPDATE/DELETE
         """
-        connection = self.connect()
-        cursor = None
-        results = None
-        
         try:
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute(query, params if params else ())
-            
-            if query.strip().upper().startswith(('SELECT', 'SHOW')):
-                results = cursor.fetchall()
-            else:
-                connection.commit()
-                results = cursor.rowcount
-            
-            return results
+            with self.get_cursor() as cursor:
+                cursor.execute(query, params if params else ())
+                
+                if query.strip().upper().startswith(('SELECT', 'SHOW')):
+                    return cursor.fetchall()
+                else:
+                    return cursor.rowcount
         except Error as e:
-            print(f"Error al ejecutar la consulta: {e}")
+            logger.error(f"Error al ejecutar la consulta: {e}, Query: {query}")
+            logger.error(f"Parámetros: {params}")
             return None
-        finally:
-            if cursor:
-                cursor.close()
     
     def execute_update(self, query, params=None):
         """
@@ -107,23 +169,28 @@ class DatabaseConnection:
             list: Resultados del procedimiento si devuelve algo
             None: Si no hay resultados
         """
-        connection = self.connect()
-        cursor = None
-        results = None
-        
         try:
-            cursor = connection.cursor(dictionary=True)
-            cursor.callproc(procedure_name, params if params else ())
-            
-            # Si el procedimiento devuelve resultados, los recuperamos
-            for result in cursor.stored_results():
-                results = result.fetchall()
-            
-            connection.commit()
-            return results
+            with self.get_connection() as connection:
+                cursor = None
+                try:
+                    cursor = connection.cursor(dictionary=True)
+                    cursor.callproc(procedure_name, params if params else ())
+                    
+                    # Si el procedimiento devuelve resultados, los recuperamos
+                    results = []
+                    for result in cursor.stored_results():
+                        results = result.fetchall()
+                    
+                    connection.commit()
+                    return results
+                except Error as e:
+                    connection.rollback()
+                    logger.error(f"Error al llamar al procedimiento {procedure_name}: {e}")
+                    logger.error(f"Parámetros: {params}")
+                    return None
+                finally:
+                    if cursor is not None:
+                        cursor.close()
         except Error as e:
-            print(f"Error al llamar al procedimiento: {e}")
+            logger.error(f"Error de conexión al llamar al procedimiento {procedure_name}: {e}")
             return None
-        finally:
-            if cursor:
-                cursor.close()
