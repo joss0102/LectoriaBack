@@ -314,7 +314,8 @@ CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_book_full` (IN `p_title` VA
 END$$
 
 DROP PROCEDURE IF EXISTS `add_reading_progress_full`$$
-CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN `p_nickname` VARCHAR(100), IN `p_book_title` VARCHAR(255), IN `p_pages_read_list` TEXT, IN `p_dates_list` TEXT)   BEGIN
+CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN `p_nickname` VARCHAR(100), IN `p_book_title` VARCHAR(255), IN `p_pages_read_list` TEXT, IN `p_dates_list` TEXT)   
+BEGIN
     DECLARE v_user_id INT;
     DECLARE v_book_id INT;
     DECLARE v_total_pages INT;
@@ -410,8 +411,6 @@ CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN 
             SET v_remaining_dates = SUBSTRING(v_remaining_dates, v_delimiter_pos + 1);
         END IF;
         
-
-        
         -- Validar que la fecha no sea futura
         IF v_date_item > CURDATE() THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede registrar progreso de lectura con fecha futura';
@@ -461,6 +460,15 @@ CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN 
     -- Confirmamos la transacción
     COMMIT;
     
+    -- Devolver un resultado exitoso con información relevante
+    SELECT 
+        TRUE AS success, 
+        'Progreso de lectura añadido correctamente' AS message,
+        v_user_id AS user_id,
+        v_book_id AS book_id,
+        v_total_pages_read AS total_pages_read,
+        v_total_pages AS total_pages,
+        ROUND((v_total_pages_read / v_total_pages) * 100) AS progress_percentage;
 
 END$$
 
@@ -2105,7 +2113,7 @@ INSERT INTO `user_has_book` (`id_user`, `id_book`, `id_status`, `date_added`, `d
 (1, 25, 2, '2025-03-30', '2024-04-07', '2024-04-10'),
 (1, 26, 2, '2025-03-30', '2024-04-08', '2024-04-15'),
 (1, 27, 2, '2025-03-30', '2024-04-10', '2024-04-23'),
-(1, 28, 1, '2025-03-30', '2024-04-17', '2024-04-25'),
+(1, 28, 3, '2025-03-30', '2024-04-17', '2024-04-25'),
 (1, 29, 2, '2025-03-30', '2024-04-24', '2024-04-29'),
 (1, 30, 2, '2025-03-30', '2024-04-28', '2024-08-21'),
 (1, 31, 2, '2025-03-30', '2024-08-19', '2024-08-22'),
@@ -2151,7 +2159,7 @@ INSERT INTO `user_has_book` (`id_user`, `id_book`, `id_status`, `date_added`, `d
 (3, 18, 2, '2025-03-30', '2024-07-07', '2024-07-12'),
 (3, 37, 2, '2025-03-30', '2024-07-13', '2024-07-16'),
 (3, 31, 2, '2025-03-30', '2024-09-19', '2024-09-22'),
-(3, 32, 4, '2025-03-30', NULL, NULL),
+(3, 32, 5, '2025-03-30', NULL, NULL),
 (4, 33, 2, '2025-03-30', '2024-08-23', '2024-09-04'),
 (4, 34, 2, '2025-03-30', '2024-09-01', '2024-09-06'),
 (4, 35, 2, '2025-03-30', '2024-09-05', '2024-09-07'),
@@ -2177,24 +2185,24 @@ INSERT INTO `user_has_book` (`id_user`, `id_book`, `id_status`, `date_added`, `d
 (2, 55, 2, '2025-03-30', '2024-10-24', '2024-10-24'),
 (2, 56, 2, '2025-03-30', '2024-10-29', '2024-11-01'),
 (2, 57, 2, '2025-03-30', '2024-11-01', '2024-11-06'),
-(1, 59, 4, '2025-04-12', NULL, NULL),
-(1, 60, 4, '2025-04-12', NULL, NULL),
-(1, 61, 4, '2025-04-12', NULL, NULL),
-(1, 62, 4, '2025-04-12', NULL, NULL),
-(1, 63, 4, '2025-04-12', NULL, NULL),
-(1, 64, 4, '2025-04-12', NULL, NULL),
-(1, 65, 4, '2025-04-12', NULL, NULL),
-(1, 66, 4, '2025-04-12', NULL, NULL),
-(1, 67, 4, '2025-04-12', NULL, NULL),
-(1, 68, 4, '2025-04-12', NULL, NULL),
-(1, 69, 4, '2025-04-12', NULL, NULL),
-(1, 70, 4, '2025-04-12', NULL, NULL),
-(1, 71, 4, '2025-04-12', NULL, NULL),
-(1, 72, 4, '2025-04-12', NULL, NULL),
-(1, 73, 4, '2025-04-12', NULL, NULL),
-(1, 74, 4, '2025-04-12', NULL, NULL),
-(1, 75, 4, '2025-04-12', NULL, NULL),
-(1, 76, 4, '2025-04-12', NULL, NULL),
+(1, 59, 5, '2025-04-12', NULL, NULL),
+(1, 60, 5, '2025-04-12', NULL, NULL),
+(1, 61, 5, '2025-04-12', NULL, NULL),
+(1, 62, 5, '2025-04-12', NULL, NULL),
+(1, 63, 5, '2025-04-12', NULL, NULL),
+(1, 64, 5, '2025-04-12', NULL, NULL),
+(1, 65, 1, '2025-04-12', NULL, NULL),
+(1, 66, 5, '2025-04-12', NULL, NULL),
+(1, 67, 5, '2025-04-12', NULL, NULL),
+(1, 68, 5, '2025-04-12', NULL, NULL),
+(1, 69, 5, '2025-04-12', NULL, NULL),
+(1, 70, 5, '2025-04-12', NULL, NULL),
+(1, 71, 5, '2025-04-12', NULL, NULL),
+(1, 72, 5, '2025-04-12', NULL, NULL),
+(1, 73, 5, '2025-04-12', NULL, NULL),
+(1, 74, 5, '2025-04-12', NULL, NULL),
+(1, 75, 5, '2025-04-12', NULL, NULL),
+(1, 76, 5, '2025-04-12', NULL, NULL),
 (1, 77, 3, '2025-03-30', NULL, NULL);
 
 -- --------------------------------------------------------
@@ -2220,7 +2228,27 @@ INSERT INTO `user_role` (`id`, `name`) VALUES
 (2, 'client');
 
 -- --------------------------------------------------------
+-- Tabla para almacenar las metas de lectura personalizadas por usuario
+DROP TABLE IF EXISTS `reading_goals`;
+CREATE TABLE IF NOT EXISTS `reading_goals` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_user` int NOT NULL,
+  `yearly` int NOT NULL DEFAULT 15,
+  `monthly` int NOT NULL DEFAULT 2,
+  `daily_pages` int NOT NULL DEFAULT 30,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_goals` (`id_user`),
+  CONSTRAINT `fk_user_reading_goals` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Insertar datos de muestra para los usuarios existentes
+INSERT INTO `reading_goals` (`id_user`, `yearly`, `monthly`, `daily_pages`) VALUES
+(1, 15, 2, 30),
+(2, 20, 3, 25),
+(3, 12, 1, 35),
+(4, 10, 1, 40),
+(5, 25, 3, 50);
+-- --------------------------------------------------------
 --
 -- Estructura Stand-in para la vista `vw_book_complete_info`
 -- (Véase abajo para la vista actual)

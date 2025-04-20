@@ -8,6 +8,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import traceback
 
+
 # Configurar logging
 logging.basicConfig(
     level=logging.INFO if not DEBUG_MODE else logging.DEBUG,
@@ -42,6 +43,7 @@ from api.routes.user_routes import user_bp
 from api.routes.reading_routes import reading_bp
 from api.routes.author_routes import author_bp
 from api.routes.auth_routes import auth_bp
+from api.routes.reading_goals_routes import reading_goals_bp
 
 # Registrar blueprints (rutas)
 app.register_blueprint(book_bp, url_prefix='/api/books')
@@ -49,7 +51,7 @@ app.register_blueprint(user_bp, url_prefix='/api/users')
 app.register_blueprint(reading_bp, url_prefix='/api/readings')
 app.register_blueprint(author_bp, url_prefix='/api/authors')
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
-
+app.register_blueprint(reading_goals_bp, url_prefix='/api/reading-goals')
 @app.route('/')
 def index():
     return jsonify({
