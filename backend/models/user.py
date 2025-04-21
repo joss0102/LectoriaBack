@@ -215,3 +215,72 @@ class UserModel:
         except Exception as e:
             logger.error(f"Error en la autenticación para usuario {nickname}: {e}")
             return None
+    def add_user(self, name, last_name1, last_name2, birthdate, union_date, nickname, password, role_name):
+        """
+        Añade un nuevo usuario a la base de datos.
+        
+        Args:
+            name (str): Nombre del usuario
+            last_name1 (str): Primer apellido
+            last_name2 (str): Segundo apellido
+            birthdate (str): Fecha de nacimiento
+            union_date (str): Fecha de unión
+            nickname (str): Nombre de usuario
+            password (str): Contraseña (se aplicará hash SHA2)
+            role_name (str): Nombre del rol
+        
+        Returns:
+            dict: Información del usuario añadido o None si falla
+        """
+        try:
+            # Primero, obtener el ID del rol
+            role_query = "SELECT id FROM user_role WHERE name = %s"
+            role_results = self.db.execute_query(role_query, [role_name])
+            
+            if not role_results:
+                logger.error(f"Rol no encontrado: {role_name}")
+                return None
+            
+            role_id = role_results[0]['id']
+            
+            # Preparar la consulta de inserción
+            insert_query = """
+            INSERT INTO user 
+            (name, last_name1, last_name2, nickName, birthdate, union_date, password, id_role) 
+            VALUES 
+            (%s, %s, %s, %s, %s, %s, SHA2(%s, 256), %s)
+            """
+            
+            # Ejecutar la inserción
+            self.db.execute_query(insert_query, [
+                name, 
+                last_name1, 
+                last_name2, 
+                nickname, 
+                birthdate, 
+                union_date, 
+                password, 
+                role_id
+            ])
+            
+            # Obtener el usuario recién creado
+            new_user_query = """
+            SELECT u.id, u.name, u.last_name1, u.last_name2, u.nickName, 
+                u.birthdate, u.union_date, u.id_role, r.name as role_name
+            FROM user u
+            JOIN user_role r ON u.id_role = r.id
+            WHERE u.nickName = %s
+            """
+            
+            new_user = self.db.execute_query(new_user_query, [nickname])
+            
+            if new_user:
+                logger.info(f"Usuario añadido exitosamente: {nickname}")
+                return new_user[0]
+            else:
+                logger.warning(f"No se pudo recuperar el usuario recién creado: {nickname}")
+                return None
+        
+        except Exception as e:
+            logger.error(f"Error al añadir usuario {nickname}: {e}")
+            return None
