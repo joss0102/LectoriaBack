@@ -17,14 +17,14 @@ DEFAULT_PAGE_SIZE = int(os.getenv("DEFAULT_PAGE_SIZE", "10"))
 MAX_PAGE_SIZE = int(os.getenv("MAX_PAGE_SIZE", "100"))  # Límite máximo para evitar consultas pesadas
 
 # Configuración de base de datos
-DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "20"))
 DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "30"))
 DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "30"))
 DB_RETRY_ATTEMPTS = int(os.getenv("DB_RETRY_ATTEMPTS", "3"))
 DB_RETRY_DELAY = int(os.getenv("DB_RETRY_DELAY", "1"))  # En segundos
 
 # Configuración de caché
-ENABLE_CACHE = os.getenv("ENABLE_CACHE", "False").lower() == "true"
+ENABLE_CACHE = os.getenv("ENABLE_CACHE", "True").lower() == "true"
 CACHE_TYPE = os.getenv("CACHE_TYPE", "simple")  # simple, redis, memcached
 CACHE_DEFAULT_TIMEOUT = int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300"))  # 5 minutos
 

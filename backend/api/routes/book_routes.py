@@ -43,6 +43,32 @@ def get_book(book_id):
     else:
         return jsonify({"error": "Libro no encontrado"}), 404
 
+@book_bp.route('/batch', methods=['GET'])
+def get_books_batch():
+    """
+    Obtiene información para múltiples libros en una sola solicitud.
+    
+    Query params:
+    - ids: Lista de IDs de libros separados por comas (ej: ids=1,2,3,4,5)
+    """
+    ids_param = request.args.get('ids', '')
+    if not ids_param:
+        return jsonify({"error": "No se proporcionaron IDs de libros"}), 400
+        
+    try:
+        book_ids = [int(id.strip()) for id in ids_param.split(',') if id.strip()]
+    except ValueError:
+        return jsonify({"error": "Formato de IDs inválido. Debe ser una lista de números separados por comas"}), 400
+    
+    if not book_ids:
+        return jsonify({"error": "No se encontraron IDs válidos"}), 400
+    
+    if len(book_ids) > 50:  # Limitar a 50 libros por solicitud para evitar abusos
+        return jsonify({"error": "Se solicitaron demasiados libros. Máximo 50 por solicitud"}), 400
+    
+    books = book_service.get_books_by_ids(book_ids)
+    return jsonify({"data": books})
+
 @book_bp.route('/', methods=['POST'])
 def add_book():
     """

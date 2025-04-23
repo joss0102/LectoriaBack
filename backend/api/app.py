@@ -7,18 +7,46 @@ import jwt
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import traceback
+import time
+import types
+from utils.cache import setup_cache, cache
+from utils.logger import setup_logger
 
 
-# Configurar logging
+# Configurar un logger básico para diagnóstico
+test_logger = logging.getLogger("test")
+test_logger.setLevel(logging.DEBUG)
+
+# Handler de consola
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+test_logger.addHandler(console_handler)
+
+# Handler de archivo para pruebas
+test_log_path = os.path.join(os.getcwd(), "debug_test.log")
+test_file_handler = logging.FileHandler(test_log_path, mode='w')
+test_file_handler.setLevel(logging.DEBUG)
+test_logger.addHandler(test_file_handler)
+
+# Mensaje de prueba
+test_logger.info(f"=== PRUEBA DE LOGGING === Directorio actual: {os.getcwd()}")
+test_logger.info(f"El archivo de log de prueba está en: {test_log_path}")
+# ===== FIN DEL CÓDIGO DE DIAGNÓSTICO =====
+
+# Forzar DEBUG_MODE para las pruebas
+DEBUG_MODE = True  # Temporalmente forzado para diagnóstico
+
+# Configurar logging - Modificado para diagnóstico
 logging.basicConfig(
-    level=logging.INFO if not DEBUG_MODE else logging.DEBUG,
+    level=logging.DEBUG,  # Forzar nivel DEBUG
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("app.log"),
-        logging.StreamHandler()
+        logging.FileHandler("app_debug.log", mode='w'),  # Nuevo archivo para diagnóstico
+        logging.StreamHandler()  # Asegurar que también va a la consola
     ]
 )
 logger = logging.getLogger("api")
+logger.info("Logger inicializado para diagnóstico")
 
 # Inicializar la aplicación Flask con configuración optimizada
 app = Flask(__name__)
@@ -28,14 +56,24 @@ app.wsgi_app = ProxyFix(app.wsgi_app)  # Mejora el manejo de proxies
 app.config['JSON_SORT_KEYS'] = False  # Evita ordenar las claves JSON (mejora rendimiento)
 app.config['PROPAGATE_EXCEPTIONS'] = True  # Mejor control de errores
 
-# Configurar CORS de manera más restrictiva
+# Configurar CORS de manera más permisiva para desarrollo
 CORS(app, resources={
-    r"/api/*": {
-        "origins": os.getenv("ALLOWED_ORIGINS", "*").split(","),
+    r"/*": { 
+        "origins": "*",  # Permitir todas las origins
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type"]
+        "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin"],
+        "supports_credentials": True  # Añadido para soportar credenciales
     }
 })
+
+# Inicializar el caché
+setup_cache(app)
+
+# Middleware para medir el tiempo de respuesta de cada solicitud
+@app.before_request
+def start_timer():
+    g.start_time = time.time()
+    logger.info(f"Iniciando cronómetro para {request.method} {request.path}")
 
 # Importar rutas
 from api.routes.book_routes import book_bp
@@ -52,8 +90,10 @@ app.register_blueprint(reading_bp, url_prefix='/api/readings')
 app.register_blueprint(author_bp, url_prefix='/api/authors')
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(reading_goals_bp, url_prefix='/api/reading-goals')
+
 @app.route('/')
 def index():
+    logger.info("Acceso a ruta principal '/'")
     return jsonify({
         "message": "Bienvenido a la API de Lectoria",
         "version": "4.0"
@@ -135,18 +175,18 @@ def handle_token_verification():
 @app.before_request
 def log_request():
     """Registra todas las solicitudes entrantes"""
-    if DEBUG_MODE:
-        logger.debug(f"Solicitud: {request.method} {request.path}")
-        if request.method in ['POST', 'PUT'] and request.is_json:
-            # Evitar registro de datos sensibles
-            if 'password' in request.json:
-                masked_data = dict(request.json)
-                masked_data['password'] = '********'
-                logger.debug(f"Datos: {masked_data}")
-            else:
-                logger.debug(f"Datos: {request.json}")
+    logger.info(f"Solicitud recibida: {request.method} {request.path}")
+    if request.method in ['POST', 'PUT'] and request.is_json:
+        # Evitar registro de datos sensibles
+        if 'password' in request.json:
+            masked_data = dict(request.json)
+            masked_data['password'] = '********'
+            logger.debug(f"Datos de solicitud: {masked_data}")
+        else:
+            logger.debug(f"Datos de solicitud: {request.json}")
 
 # Middleware para cerrar todas las conexiones activas después de cada solicitud
+# y registrar el tiempo de respuesta
 @app.after_request
 def after_request(response):
     """Operaciones de limpieza después de cada solicitud"""
@@ -158,14 +198,15 @@ def after_request(response):
     if hasattr(g, 'user_nickname'):
         delattr(g, 'user_nickname')
     
-    # Registrar resultado de la solicitud en nivel de depuración
-    if DEBUG_MODE and response:
-        logger.debug(f"Respuesta: {response.status}")
+    # Registrar resultado de la solicitud
+    status_code = getattr(response, 'status_code', '?')
     
     return response
 
 def start_api():
     """Inicia la API con gunicorn o flask incorporado según FLASK_WORKERS"""
+    logger.info("Iniciando API Lectoria...")
+    
     if FLASK_WORKERS and int(FLASK_WORKERS) > 1:
         from gunicorn.app.wsgiapp import WSGIApplication
         
@@ -188,7 +229,7 @@ def start_api():
     else:
         # Iniciar con el servidor incorporado de Flask
         logger.info("Iniciando API lectoria con Flask incorporado")
-        app.run(host=API_HOST, port=int(API_PORT), debug=DEBUG_MODE, threaded=True)
+        app.run(host=API_HOST, port=int(API_PORT), debug=True, threaded=True)  # Forzar debug=True
 
 if __name__ == "__main__":
     start_api()

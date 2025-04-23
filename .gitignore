@@ -23,3 +23,7 @@ md
 # logs
 
 **/app.log
+
+**/app_debug.log
+
+**/debug_test.log

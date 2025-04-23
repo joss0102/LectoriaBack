@@ -35,6 +35,23 @@ class BookService:
             }
         }
     
+    def get_books_by_ids(self, book_ids):
+        """
+        Obtiene información para múltiples libros por sus IDs.
+        
+        Args:
+            book_ids (list): Lista de IDs de los libros a obtener
+            
+        Returns:
+            list: Lista de diccionarios con información de los libros
+        """
+        books = []
+        for book_id in book_ids:
+            book = self.get_book_by_id(book_id)
+            if book:
+                books.append(book)
+        return books
+
     def get_book_by_id(self, book_id):
         """
         Obtiene un libro por su ID.
