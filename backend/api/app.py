@@ -11,6 +11,7 @@ import time
 import types
 from utils.cache import setup_cache, cache
 from utils.logger import setup_logger
+from api.routes.pdf_book_routes import pdf_book_bp
 
 
 # Configurar un logger básico para diagnóstico
@@ -50,6 +51,7 @@ logger.info("Logger inicializado para diagnóstico")
 
 # Inicializar la aplicación Flask con configuración optimizada
 app = Flask(__name__)
+app.url_map.strict_slashes = False  # Añade esta línea
 app.wsgi_app = ProxyFix(app.wsgi_app)  # Mejora el manejo de proxies
 
 # Configuraciones para mejorar rendimiento
@@ -59,9 +61,10 @@ app.config['PROPAGATE_EXCEPTIONS'] = True  # Mejor control de errores
 # Configurar CORS de manera más permisiva para desarrollo
 CORS(app, resources={
     r"/*": { 
-        "origins": "*",  # Permitir todas las origins
+        "origins": ["http://localhost:4200", "http://127.0.0.1:4200", "*"],  # Añade explícitamente los orígenes de Angular
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin"],
+        "allow_headers": ["Authorization", "Content-Type", "Accept", "Origin", "X-Debug-Info"],
+        "expose_headers": ["Content-Length", "Content-Type", "X-Debug-Info"],
         "supports_credentials": True  # Añadido para soportar credenciales
     }
 })
@@ -90,6 +93,7 @@ app.register_blueprint(reading_bp, url_prefix='/api/readings')
 app.register_blueprint(author_bp, url_prefix='/api/authors')
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(reading_goals_bp, url_prefix='/api/reading-goals')
+app.register_blueprint(pdf_book_bp, url_prefix='/api/pdf-books') 
 
 @app.route('/')
 def index():
@@ -123,7 +127,8 @@ def handle_token_verification():
     public_routes = [
         '/',
         '/api/auth/login',
-        '/api/auth/refresh'
+        '/api/auth/refresh',
+        '/api/pdf-books/upload'
     ]
     
     if request.method == 'OPTIONS':

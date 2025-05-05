@@ -1,26 +1,31 @@
 # Base de datos
-mysql-connector-python==8.0.31
+mysql-connector-python==8.0.31  # Conector para MySQL
 
 # Variables de entorno
-python-dotenv==1.0.0
+python-dotenv==1.0.0  # Carga variables de entorno desde archivos .env
 
 # Framework Web
-Flask==2.3.3
-Flask-CORS==4.0.0
-Werkzeug==2.3.7  # Mantener compatible con Flask 2.3.3
+Flask==2.3.3  # Framework web principal
+Flask-CORS==4.0.0  # Soporte para Cross-Origin Resource Sharing
+Werkzeug==2.3.7  # Utilidades WSGI, mantener compatible con Flask 2.3.3
 
 # Autenticación
-PyJWT==2.7.0
+PyJWT==2.7.0  # Implementación de JSON Web Tokens
 
 # Servidor WSGI (para producción)
-gunicorn==21.2.0
-gevent==24.2.1
+gunicorn==21.2.0  # Servidor WSGI HTTP para producción
+gevent==24.2.1  # Biblioteca de eventos asíncronos para Gunicorn
 
 # Caching
-Flask-Caching==2.1.0
+Flask-Caching==2.1.0  # Extensión para caché en Flask
 
 # Manejo de errores y monitoreo
-sentry-sdk==1.40.4
+sentry-sdk==1.40.4  # Monitoreo y seguimiento de errores
 
 # Utilidades
-python-dateutil==2.8.2
+python-dateutil==2.8.2  # Extensiones para trabajar con fechas y horas
+
+# Procesamiento de PDFs y archivos - NUEVAS DEPENDENCIAS
+pdfplumber==0.10.3  # Extracción de texto y datos de PDFs
+requests==2.31.0  # Biblioteca HTTP para consumir APIs externas
+python-multipart==0.0.6  # Soporte para procesamiento de formularios con archivos

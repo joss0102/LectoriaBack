@@ -6,6 +6,7 @@ book_bp = Blueprint('book_bp', __name__)
 book_service = BookService()
 
 @book_bp.route('/', methods=['GET'])
+@book_bp.route('', methods=['GET'])
 def get_books():
     """
     Obtiene todos los libros con paginación y filtros opcionales.
