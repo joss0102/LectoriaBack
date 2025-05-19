@@ -6,7 +6,6 @@ import functools
 
 logger = logging.getLogger('cache')
 
-# Configuración global de caché
 cache_config = {
     'CACHE_TYPE': CACHE_TYPE,
     'CACHE_DEFAULT_TIMEOUT': CACHE_DEFAULT_TIMEOUT,
@@ -24,7 +23,6 @@ elif CACHE_TYPE == 'memcached':
         'CACHE_MEMCACHED_SERVERS': [os.getenv('MEMCACHED_SERVER', 'localhost:11211')],
     })
 
-# Instancia global de caché - INICIALIZADA PERO NECESITA SETUP_CACHE PARA USARSE
 cache = Cache()
 
 def setup_cache(app):
@@ -39,7 +37,6 @@ def setup_cache(app):
         return
     
     try:
-        # Aplicamos configuración y luego inicializamos con la app
         for key, value in cache_config.items():
             app.config[key] = value
             
@@ -63,7 +60,6 @@ def invalidate_cache_for(key_pattern):
             cache.delete_memoized(key_pattern)
             logger.debug(f"Caché invalidada para patrón: {key_pattern}")
         elif hasattr(cache, '_cache'):
-            # Para algunos backends que usan _cache
             keys = [k for k in cache._cache.keys() if key_pattern in k]
             for key in keys:
                 cache.delete(key)
@@ -96,24 +92,20 @@ def cached(timeout=None, key_prefix='view', unless=None):
         decorated_function: La función decorada con caché
     """
     def decorator(f):
-        # Si el caché no está habilitado, devolvemos la función original
         if not ENABLE_CACHE:
             return f
             
-        # Usamos lru_cache de functools como alternativa simple
         @functools.lru_cache(maxsize=128)
         def cached_func(*args, **kwargs):
             return f(*args, **kwargs)
             
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
-            # Si hay una condición para no cachear, la verificamos
             if unless and callable(unless) and unless():
                 return f(*args, **kwargs)
                 
             return cached_func(*args, **kwargs)
             
-        # Añadimos método para limpiar caché
         wrapper.clear_cache = cached_func.cache_clear
         return wrapper
         

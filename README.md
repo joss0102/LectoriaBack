@@ -38,9 +38,10 @@ cd backend
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+source venv/Scripts/activate
 pip install -r requirements.txt
-pip install --upgrade mysql-connector-python # Si falla o no se instalo correctamente / version antigua
+pip install --upgrade mysql-connector-python
+pip install transformers torch 
 ```
 3. Configure las variables de entorno en el archivo `.env`:
 
