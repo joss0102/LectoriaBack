@@ -2,4 +2,4 @@
 
 1. Backend
 
-- Primero de todo ir a este repositorio `https://github.com/joss0102/LectoriaBack`
+- Primero de todo ir a este repositorio ()[`https://github.com/joss0102/LectoriaBack`]
