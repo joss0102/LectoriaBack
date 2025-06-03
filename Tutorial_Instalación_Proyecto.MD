@@ -6,8 +6,7 @@ Este documento explica los pasos necesarios para instalar y ejecutar el proyecto
 
 ## 1. Backend
 
-- Primero, accede al repositorio del backend:  
-  [Repositorio Backend](https://github.com/joss0102/LectoriaBack)
+- Primero, accede al repositorio del backend: [Repositorio Backend](https://github.com/joss0102/LectoriaBack)
 
 - Clona el repositorio en tu equipo:
 
