@@ -7,7 +7,7 @@
 ```git
 git clone https://github.com/joss0102/LectoriaBack.git
 ```
-- Una vez clonado tendremos unas instrucciones dentro del README.md.
+- Una vez clonado tendremos unas instrucciones dentro del [README.md](https://github.com/joss0102/LectoriaBack/blob/main/README.md)
 - El siguiente paso es ejecutar la base de datos en MySQL que esta en la carpeta database, ejecutaremos ese archivo .sql , posteriormente crearemos un usuario llamado Lectoria en localhost con la contraseña `1234` y le daremos todos los privilegios a ese usuario.
 - Una vez configurada la base de datos y el servicio MySQL activo, el siguiente paso es ir a la carpeta backend y seguir estos comandos:
 ```git
@@ -23,3 +23,5 @@ pip install transformers torch
 ```git
 python main.py
 ```
+- La API estará disponible en http://localhost:8080 y en el anterior [README.md](https://github.com/joss0102/LectoriaBack/blob/main/README.md) para poder atacar a los endpoints.
+
