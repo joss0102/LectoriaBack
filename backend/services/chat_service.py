@@ -65,7 +65,7 @@ class ChatService:
         return self.chat_model.get_daily_reading_stats(user_nickname, days)
     
     
-    def process_query(self, query, user_nicknamee):
+    def process_query(self, query, user_nickname):
         """
         Procesa una consulta de chat utilizando un sistema híbrido de reglas
         avanzadas y modelo de lenguaje cuando está disponible.

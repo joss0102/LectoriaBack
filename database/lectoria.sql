@@ -264,7 +264,7 @@ CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_book_full` (IN `p_title` VA
     -- 9. Insertar review (solo si no existe ya para este usuario y libro)
     IF p_review IS NOT NULL AND TRIM(p_review) <> '' THEN
         -- Validar el rating
-        IF p_rating < 1 OR p_rating > 10 THEN
+        IF p_rating < 1 OR p_rating > 12 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El rating debe estar entre 1 y 10';
         END IF;
         
@@ -1712,7 +1712,7 @@ INSERT INTO `review` (`id`, `text`, `rating`, `date_created`, `id_book`, `id_use
 (39, 'Pequeña joya para fans de la pareja. Escenas íntimas y emotivas bien logradas.', '7.50', '2025-04-13', 39, 1),
 (40, 'Tercera parte llena de acción y revelaciones. El desarrollo del mundo es excelente.', '8.93', '2025-04-13', 40, 1),
 (41, 'Mundo mágico y atmosférico con giros inesperados. La ambientación de Caraval es fascinante.', '9.43', '2025-04-13', 41, 1),
-(42, 'Narrativa cruda y poderosa. Combina perfectamente fantasía oscura con elementos de horror.', '10.00', '2025-04-13', 42, 1),
+(42, 'Narrativa cruda y poderosa. Combina perfectamente fantasía oscura con elementos de horror.', '12.00', '2025-04-13', 42, 1),
 (43, 'Química electrizante entre los protagonistas. Dinámica de enemigos a amantes bien ejecutada.', '7.93', '2025-04-13', 43, 1),
 (44, 'Intriga política bien desarrollada. La tensión sexual aumenta de manera satisfactoria.', '7.86', '2025-04-13', 44, 1),
 (45, 'Final satisfactorio con giros inesperados. La evolución de los personajes es notable.', '10.00', '2025-04-13', 45, 1),
