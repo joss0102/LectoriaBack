@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 13-04-2025 a las 12:58:15
+-- Tiempo de generación: 05-06-2025 a las 06:13:39
 -- Versión del servidor: 8.0.31
 -- Versión de PHP: 8.0.26
 
@@ -314,8 +314,7 @@ CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_book_full` (IN `p_title` VA
 END$$
 
 DROP PROCEDURE IF EXISTS `add_reading_progress_full`$$
-CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN `p_nickname` VARCHAR(100), IN `p_book_title` VARCHAR(255), IN `p_pages_read_list` TEXT, IN `p_dates_list` TEXT)   
-BEGIN
+CREATE DEFINER=`Lectoria`@`localhost` PROCEDURE `add_reading_progress_full` (IN `p_nickname` VARCHAR(100), IN `p_book_title` VARCHAR(255), IN `p_pages_read_list` TEXT, IN `p_dates_list` TEXT)   BEGIN
     DECLARE v_user_id INT;
     DECLARE v_book_id INT;
     DECLARE v_total_pages INT;
@@ -460,15 +459,6 @@ BEGIN
     -- Confirmamos la transacción
     COMMIT;
     
-    -- Devolver un resultado exitoso con información relevante
-    SELECT 
-        TRUE AS success, 
-        'Progreso de lectura añadido correctamente' AS message,
-        v_user_id AS user_id,
-        v_book_id AS book_id,
-        v_total_pages_read AS total_pages_read,
-        v_total_pages AS total_pages,
-        ROUND((v_total_pages_read / v_total_pages) * 100) AS progress_percentage;
 
 END$$
 
@@ -605,7 +595,7 @@ CREATE TABLE IF NOT EXISTS `book` (
   `title` varchar(255) NOT NULL,
   `pages` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `book`
@@ -688,7 +678,9 @@ INSERT INTO `book` (`id`, `title`, `pages`) VALUES
 (74, 'La maldición del amor verdadero', 345),
 (75, 'Los juegos de los dioses', 616),
 (76, 'Mi alma por venganza', 325),
-(77, 'La reina de nada', 278);
+(77, 'La reina de nada', 278),
+(78, 'Twisted hate', 435),
+(79, 'Twisted lies', 420);
 
 -- --------------------------------------------------------
 
@@ -785,7 +777,9 @@ INSERT INTO `book_has_author` (`id_book`, `id_author`) VALUES
 (74, 10),
 (75, 21),
 (76, 18),
-(77, 6);
+(77, 6),
+(78, 19),
+(79, 19);
 
 -- --------------------------------------------------------
 
@@ -1018,7 +1012,11 @@ INSERT INTO `book_has_genre` (`id_book`, `id_genre`) VALUES
 (76, 27),
 (77, 5),
 (77, 7),
-(77, 11);
+(77, 11),
+(78, 10),
+(78, 28),
+(79, 10),
+(79, 28);
 
 -- --------------------------------------------------------
 
@@ -1115,7 +1113,9 @@ INSERT INTO `book_has_saga` (`id_book`, `id_saga`) VALUES
 (74, 12),
 (75, 25),
 (76, 21),
-(77, 8);
+(77, 8),
+(78, 22),
+(79, 22);
 
 -- --------------------------------------------------------
 
@@ -1134,7 +1134,7 @@ CREATE TABLE IF NOT EXISTS `book_note` (
   PRIMARY KEY (`id`),
   KEY `id_book` (`id_book`),
   KEY `id_user` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=179 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `book_note`
@@ -1236,7 +1236,89 @@ INSERT INTO `book_note` (`id`, `text`, `id_book`, `id_user`, `date_created`, `da
 (93, 'Leer después de OcultaME para mejor contexto', 54, 2, '2025-04-13', NULL),
 (94, 'Leer después de MuestraME para mejor contexto', 55, 2, '2025-04-13', NULL),
 (95, 'Analizar la mitología del mundo creado', 56, 2, '2025-04-13', NULL),
-(96, 'Contenido sensible: revisar advertencias', 57, 2, '2025-04-13', NULL);
+(96, 'Contenido sensible: revisar advertencias', 57, 2, '2025-04-13', NULL),
+(97, 'Relee el capítulo 15 - la escena del primer vuelo es épica', 1, 6, '2025-06-05', NULL),
+(98, 'El cliffhanger final es brutal - preparar pañuelos', 15, 6, '2025-06-05', NULL),
+(99, 'Analizar los diálogos de Celaena - son brillantes', 2, 6, '2025-06-05', NULL),
+(100, 'El desarrollo de Chaol en esta entrega es muy interesante', 3, 6, '2025-06-05', NULL),
+(101, 'La transformación de Celaena/Aelin es perfecta', 4, 6, '2025-06-05', NULL),
+(102, 'El giro en la mitad del libro es impactante', 19, 6, '2025-06-05', NULL),
+(103, 'Las escenas de batalla están magníficamente escritas', 20, 6, '2025-06-05', NULL),
+(104, 'Hacer diagramas del sistema de alomancia', 27, 6, '2025-06-05', NULL),
+(105, 'La escena del baile bajo la máscara es simbólicamente perfecta', 6, 6, '2025-06-05', NULL),
+(106, 'El arco de Rhysand es perfecto', 7, 6, '2025-06-05', NULL),
+(107, 'Comparar con otros libros de competiciones', 18, 6, '2025-06-05', NULL),
+(108, 'Los nuevos poderes introducidos son fascinantes', 37, 6, '2025-06-05', NULL),
+(109, 'Prestar atención a las pistas ocultas', 41, 6, '2025-06-05', NULL),
+(110, 'El worldbuilding es impresionante y Bryce es diferente a otras protagonistas de SJM', 14, 6, '2025-06-05', NULL),
+(111, 'He oído maravillas de esta saga - definitivamente en mi lista', 29, 6, '2025-06-05', NULL),
+(112, 'Analizar la evolución de la relación principal', 43, 7, '2025-06-05', NULL),
+(113, 'Tomar notas de las estrategias empleadas', 44, 7, '2025-06-05', NULL),
+(114, 'El epílogo cierra perfectamente la historia', 45, 7, '2025-06-05', NULL),
+(115, 'Prestar atención al uso de metáforas y tachones', 35, 7, '2025-06-05', NULL),
+(116, 'La transformación de víctima a heroína es perfecta', 38, 7, '2025-06-05', NULL),
+(117, 'Prestar atención a los nuevos poderes introducidos', 40, 7, '2025-06-05', NULL),
+(118, 'Los personajes secundarios añaden profundidad a la historia', 60, 7, '2025-06-05', NULL),
+(119, 'Rhys y Bridget tienen una química increíble. La tensión está muy bien construida', 61, 7, '2025-06-05', NULL),
+(120, 'Contenido gráfico: revisar advertencias antes de releer', 42, 8, '2025-06-05', NULL),
+(121, 'El desarrollo de la relación principal es brillante', 65, 8, '2025-06-05', NULL),
+(122, 'Analizar la mitología creada - muy original', 50, 8, '2025-06-05', NULL),
+(123, 'Comparar evolución de los personajes principales', 51, 8, '2025-06-05', NULL),
+(124, 'Analizar la simbología religiosa en la historia', 46, 8, '2025-06-05', NULL),
+(125, 'El sistema de vampirismo es original - tomar notas', 48, 8, '2025-06-05', NULL),
+(126, 'Contenido sensible: revisar advertencias', 49, 8, '2025-06-05', NULL),
+(127, 'Comparar con el Peter Pan original - diferencias interesantes', 47, 8, '2025-06-05', NULL),
+(128, 'El monólogo interno del Capitán es brillante', 58, 8, '2025-06-05', NULL),
+(129, 'Contenido sensible: revisar advertencias antes de releer', 33, 8, '2025-06-05', NULL),
+(130, 'Analizar la evolución psicológica de los personajes', 34, 8, '2025-06-05', NULL),
+(131, 'La evolución desde un contrato frío a una conexión emocional es muy creíble', 57, 8, '2025-06-05', NULL),
+(132, 'La transformación de Dante a lo largo de la historia es notable', 62, 9, '2025-06-05', NULL),
+(133, 'La rivalidad profesional que se convierte en romance está muy bien lograda', 63, 9, '2025-06-05', NULL),
+(134, 'La evolución de Julian desde villano a héroe romántico es brillante', 64, 9, '2025-06-05', NULL),
+(135, 'La expansión de la mitología de Caraval es excelente', 69, 9, '2025-06-05', NULL),
+(136, 'El desarrollo de ambas hermanas a lo largo de la saga es perfecto', 70, 9, '2025-06-05', NULL),
+(137, 'Evangeline es una protagonista muy diferente pero igual de cautivadora', 72, 9, '2025-06-05', NULL),
+(138, 'La evolución de Poppy como líder es impresionante', 21, 10, '2025-06-05', NULL),
+(139, 'Expande el mundo de manera magistral', 22, 10, '2025-06-05', NULL),
+(140, 'Confrontación épica que justifica toda la saga', 23, 10, '2025-06-05', NULL),
+(141, 'Un libro de reconstrucción emocional hermoso', 24, 10, '2025-06-05', NULL),
+(142, 'Encantadora historia de amor con suficiente conflicto', 31, 10, '2025-06-05', NULL),
+(143, 'Segunda parte que mantiene la magia del primero', 32, 10, '2025-06-05', NULL),
+(144, 'Plot twists magistrales. Análisis político brillante', 28, 10, '2025-06-05', NULL),
+(145, 'La competición mágica es original y emocionante', 71, 10, '2025-06-05', NULL),
+(146, 'La competición de los dioses cada cien años es un concepto brillante', 75, 10, '2025-06-05', NULL),
+(147, 'Subrayar todos los diálogos entre Aelin y Rowan', 5, 11, '2025-06-05', NULL),
+(148, 'El discurso de Feyre en el capítulo 67 es inspirador', 8, 11, '2025-06-05', NULL),
+(149, 'El capítulo 89 es devastador - preparar pañuelos', 10, 11, '2025-06-05', NULL),
+(150, 'Analizar los paralelismos entre Aelin y Elena', 11, 11, '2025-06-05', NULL),
+(151, 'El epílogo es perfecto - leer con música épica', 12, 11, '2025-06-05', NULL),
+(152, 'Subrayar todas las escenas de entrenamiento', 13, 11, '2025-06-05', NULL),
+(153, 'El cameo de personajes de ACOTAR es brillante', 16, 11, '2025-06-05', NULL),
+(154, 'Hacer mapa de conexiones entre universos de SJM', 17, 11, '2025-06-05', NULL),
+(155, 'Lectura ligera para disfrutar en invierno', 9, 11, '2025-06-05', NULL),
+(156, 'Conclusión satisfactoria para esta etapa', 25, 11, '2025-06-05', NULL),
+(157, 'Prestar atención a los nuevos poderes que se manifiestan', 26, 11, '2025-06-05', NULL),
+(158, 'La evolución de Paedyn como reina es prometedora', 66, 11, '2025-06-05', NULL),
+(159, 'Releer después del primer libro para mejor contexto', 36, 11, '2025-06-05', NULL),
+(160, 'Leer justo después de LiberaME para continuidad', 39, 11, '2025-06-05', NULL),
+(161, 'Prestar atención al desarrollo de personajes secundarios', 52, 11, '2025-06-05', NULL),
+(162, 'El epílogo es perfecto - leer con atención', 53, 11, '2025-06-05', NULL),
+(163, 'Leer después de OcultaME para mejor contexto', 54, 11, '2025-06-05', NULL),
+(164, 'Leer después de MuestraME para mejor contexto', 55, 11, '2025-06-05', NULL),
+(165, 'Analizar la mitología del mundo creado', 56, 11, '2025-06-05', NULL),
+(166, 'Los elementos sobrenaturales están muy bien integrados en la trama', 76, 11, '2025-06-05', NULL),
+(167, 'La tensión entre desconfianza y atracción está muy bien lograda', 73, 12, '2025-06-05', NULL),
+(168, 'El precio del cuento de hadas es devastador pero necesario', 74, 12, '2025-06-05', NULL),
+(169, 'Los giros políticos son inesperados y la resolución satisfactoria', 77, 12, '2025-06-05', NULL),
+(170, 'El desarrollo emocional de Sera es conmovedor', 59, 12, '2025-06-05', NULL),
+(171, 'Violet emprende un viaje fuera de Aretia en busca de aliados. La tensión se intensifica', 68, 12, '2025-06-05', NULL),
+(172, 'La evolución de Rhys desde profesional a enamorado es perfecta', 61, 13, '2025-06-05', NULL),
+(173, 'La transformación de la venganza en amor está muy bien lograda', 62, 13, '2025-06-05', NULL),
+(174, 'La rivalidad profesional que se convierte en amor es brillante', 63, 13, '2025-06-05', NULL),
+(175, 'Julian aprende que hay cosas que el dinero no puede comprar', 64, 13, '2025-06-05', NULL),
+(176, 'La evolución de Alex desde frío a protector es fascinante', 60, 13, '2025-06-05', NULL),
+(177, 'La química entre Josh y Jules es explosiva desde el inicio', 78, 13, '2025-06-05', NULL),
+(178, 'Christian debe proteger a Stella mientras navegan por un mundo de mentiras y secretos', 79, 13, '2025-06-05', NULL);
 
 -- --------------------------------------------------------
 
@@ -1301,7 +1383,7 @@ CREATE TABLE IF NOT EXISTS `phrase` (
   PRIMARY KEY (`id`),
   KEY `id_book` (`id_book`),
   KEY `id_user` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=171 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `phrase`
@@ -1403,7 +1485,109 @@ INSERT INTO `phrase` (`id`, `text`, `id_book`, `id_user`, `date_added`) VALUES
 (93, 'Cruzaría mil mundos destruidos solo para encontrarte en uno.', 54, 2, '2025-04-13'),
 (94, 'Encontrarte no fue un destino, fue mi elección constante.', 55, 2, '2025-04-13'),
 (95, 'La ruina no es el fin, sino el principio de algo más poderoso.', 56, 2, '2025-04-13'),
-(96, 'No me ofreciste tu alma, me entregaste tu corazón sin saberlo.', 57, 2, '2025-04-13');
+(96, 'No me ofreciste tu alma, me entregaste tu corazón sin saberlo.', 57, 2, '2025-04-13'),
+(97, 'A veces, la fuerza no viene de los músculos, sino de la voluntad de seguir adelante cuando todo parece perdido.', 1, 6, '2025-06-05'),
+(98, 'Elige tu propio camino, incluso si tienes que arrastrarte por él.', 15, 6, '2025-06-05'),
+(99, 'La mayor debilidad de una persona no es la que todo el mundo ve, sino la que ella misma oculta.', 2, 6, '2025-06-05'),
+(100, 'Incluso en la oscuridad, puede nacer la luz más brillante.', 3, 6, '2025-06-05'),
+(101, 'El fuego que te quema es el mismo que te hace brillar.', 4, 6, '2025-06-05'),
+(102, 'La libertad siempre vale el precio, sin importar cuán alto sea.', 19, 6, '2025-06-05'),
+(103, 'En la oscuridad es donde encontramos nuestra verdadera fuerza.', 20, 6, '2025-06-05'),
+(104, 'La supervivencia no es suficiente. Para vivir, debemos encontrar algo por lo que valga la pena morir.', 27, 6, '2025-06-05'),
+(105, 'No dejes que el miedo a perder te impida jugar el juego.', 6, 6, '2025-06-05'),
+(106, 'A las estrellas que escuchan, y a los sueños que están ansiosos por ser respondidos.', 7, 6, '2025-06-05'),
+(107, 'Ser ordinario en un mundo extraordinario es el poder más peligroso de todos.', 18, 6, '2025-06-05'),
+(108, 'Ser temerario no es falta de miedo, sino valor para actuar a pesar de él.', 37, 6, '2025-06-05'),
+(109, 'Recuerda, todo en Caraval es un juego. No creas todo lo que ves.', 41, 6, '2025-06-05'),
+(110, 'El cautiverio no es solo de cuerpos, sino también de corazones.', 43, 7, '2025-06-05'),
+(111, 'En el juego del poder, cada gesto es un movimiento calculado.', 44, 7, '2025-06-05'),
+(112, 'A veces, rebelarse es la única forma de ser fiel a uno mismo.', 45, 7, '2025-06-05'),
+(113, 'Mi toque es letal, pero mi corazón solo quiere amar.', 35, 7, '2025-06-05'),
+(114, 'No soy un arma. No soy un monstruo. Soy libre.', 38, 7, '2025-06-05'),
+(115, 'No somos lo que nos hicieron, somos lo que elegimos ser.', 40, 7, '2025-06-05'),
+(116, 'El amor no es una debilidad, es el arma más poderosa que tenemos.', 60, 7, '2025-06-05'),
+(117, 'La esperanza es el primer paso en el camino a la decepción.', 42, 8, '2025-06-05'),
+(118, 'Los monstruos más peligrosos no son los que muestran sus garras, sino los que esconden sonrisas.', 65, 8, '2025-06-05'),
+(119, 'Los monstruos más peligrosos no son los que muestran sus garras, sino los que esconden sonrisas.', 50, 8, '2025-06-05'),
+(120, 'Para gobernar un trono de monstruos, primero debes convertirte en uno.', 51, 8, '2025-06-05'),
+(121, 'Incluso los ángeles más puros esconden un infierno interior.', 46, 8, '2025-06-05'),
+(122, 'No rezo a los dioses. Soy lo que los dioses temen.', 48, 8, '2025-06-05'),
+(123, 'No soy un salvador. Soy el villano de tu historia.', 49, 8, '2025-06-05'),
+(124, 'Las cicatrices más profundas no son las que se ven, sino las que llevamos dentro.', 47, 8, '2025-06-05'),
+(125, 'Todos crecen, excepto aquellos que eligen perderse en el juego.', 58, 8, '2025-06-05'),
+(126, 'Perteneces a mí, incluso cuando luchas contra ello.', 33, 8, '2025-06-05'),
+(127, 'Incluso en la oscuridad más profunda, encontraré el camino hacia ti.', 34, 8, '2025-06-05'),
+(128, 'La venganza es un plato que se sirve frío, pero el amor puede derretir el hielo más espeso.', 62, 9, '2025-06-05'),
+(129, 'El orgullo puede ser nuestra mayor fortaleza o nuestra peor debilidad.', 63, 9, '2025-06-05'),
+(130, 'La codicia por algo verdadero vale más que poseer mil cosas falsas.', 64, 9, '2025-06-05'),
+(131, 'Los secretos familiares pueden ser las verdades más peligrosas.', 69, 9, '2025-06-05'),
+(132, 'El verdadero poder no está en controlar el destino, sino en elegir cómo responder a él.', 70, 9, '2025-06-05'),
+(133, 'Una reina no nace, se forja en el fuego de la adversidad.', 21, 10, '2025-06-05'),
+(134, 'La esperanza es como una brasa: parece apagada, pero puede iniciar el incendio más grande.', 22, 10, '2025-06-05'),
+(135, 'En la guerra no hay vencedores, sólo sobrevivientes.', 23, 10, '2025-06-05'),
+(136, 'La luz más brillante a menudo nace de la oscuridad más profunda.', 24, 10, '2025-06-05'),
+(137, 'El corazón no entiende de prohibiciones cuando encuentra su verdadero destino.', 31, 10, '2025-06-05'),
+(138, 'Una promesa hecha con el corazón es más fuerte que cualquier cadena.', 32, 10, '2025-06-05'),
+(139, 'Un líder debe ver lo que es, no lo que desea que sea.', 28, 10, '2025-06-05'),
+(140, 'Algunas leyendas esconden terribles verdades, pero también magia real.', 71, 10, '2025-06-05'),
+(141, 'Estar maldita no significa estar condenada, significa tener la oportunidad de desafiar a los dioses.', 75, 10, '2025-06-05'),
+(142, 'No eres dueña de tu destino, pero sí de cómo lo enfrentas.', 5, 11, '2025-06-05'),
+(143, 'Sólo puedes ser valiente cuando has tenido miedo.', 8, 11, '2025-06-05'),
+(144, 'Tú no cedas. Tú no retrocedas. Hay que ser esa chispa que enciende el fuego de la revolución.', 10, 11, '2025-06-05'),
+(145, 'Incluso en la oscuridad más profunda, no olvides quién eres.', 11, 11, '2025-06-05'),
+(146, 'La luz siempre encontrará la manera de abrirse paso, incluso en los lugares más oscuros.', 12, 11, '2025-06-05'),
+(147, 'No eres nada hasta que decides serlo todo.', 13, 11, '2025-06-05'),
+(148, 'A través del amor, todos son inmortales.', 16, 11, '2025-06-05'),
+(149, 'El amor no es una debilidad, es el arma más poderosa que tenemos.', 17, 11, '2025-06-05'),
+(150, 'La familia no es sólo sangre, sino aquellos por los que estarías dispuesto a sangrar.', 9, 11, '2025-06-05'),
+(151, 'El amor no borra el pasado, pero da fuerza para enfrentar el futuro.', 25, 11, '2025-06-05'),
+(152, 'El fuego que nos consume es el mismo que nos fortalece.', 26, 11, '2025-06-05'),
+(153, 'Como reina, tendrá la oportunidad de unir y crear un reino donde los vulgares vivan sin miedo.', 66, 11, '2025-06-05'),
+(154, 'No sabía que podía amarla hasta que supe que no debía.', 36, 11, '2025-06-05'),
+(155, 'En sus ojos encontré el reflejo de la persona que quería ser.', 39, 11, '2025-06-05'),
+(156, 'No estoy rota, solo reconstruida de manera diferente.', 52, 11, '2025-06-05'),
+(157, 'Desafiarte a ti mismo es el acto más valiente de todos.', 53, 11, '2025-06-05'),
+(158, 'Cruzaría mil mundos destruidos solo para encontrarte en uno.', 54, 11, '2025-06-05'),
+(159, 'Encontrarte no fue un destino, fue mi elección constante.', 55, 11, '2025-06-05'),
+(160, 'La ruina no es el fin, sino el principio de algo más poderoso.', 56, 11, '2025-06-05'),
+(161, 'Los cuentos de hadas que tanto amaba esconden oscuridades que nunca imaginó.', 73, 12, '2025-06-05'),
+(162, 'El amor verdadero no es sin precio, pero vale cada sacrificio.', 74, 12, '2025-06-05'),
+(163, 'El poder verdadero no está en la corona, sino en saber cuándo renunciar a ella.', 77, 12, '2025-06-05'),
+(164, 'La esperanza en un futuro con la otra mitad de su corazón y de su alma es poderosa.', 59, 12, '2025-06-05'),
+(165, 'El amor verdadero requiere sacrificios, pero nunca debería requerir que pierdas tu esencia.', 61, 13, '2025-06-05'),
+(166, 'La venganza es dulce, pero el amor es adictivo.', 62, 13, '2025-06-05'),
+(167, 'El orgullo puede construir imperios, pero solo el amor puede construir hogares.', 63, 13, '2025-06-05'),
+(168, 'La codicia por las cosas materiales palidece ante la codicia por el amor verdadero.', 64, 13, '2025-06-05'),
+(169, 'Las reglas están hechas para romperse, especialmente cuando el corazón está involucrado.', 60, 13, '2025-06-05'),
+(170, 'El odio es solo amor disfrazado de miedo.', 78, 13, '2025-06-05');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `reading_goals`
+--
+
+DROP TABLE IF EXISTS `reading_goals`;
+CREATE TABLE IF NOT EXISTS `reading_goals` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_user` int NOT NULL,
+  `yearly` int NOT NULL DEFAULT '15',
+  `monthly` int NOT NULL DEFAULT '2',
+  `daily_pages` int NOT NULL DEFAULT '30',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_goals` (`id_user`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `reading_goals`
+--
+
+INSERT INTO `reading_goals` (`id`, `id_user`, `yearly`, `monthly`, `daily_pages`) VALUES
+(1, 1, 15, 2, 30),
+(2, 2, 20, 3, 25),
+(3, 3, 12, 1, 35),
+(4, 4, 10, 1, 40),
+(5, 5, 25, 3, 50);
 
 -- --------------------------------------------------------
 
@@ -1421,7 +1605,7 @@ CREATE TABLE IF NOT EXISTS `reading_progress` (
   PRIMARY KEY (`id`),
   KEY `id_book` (`id_book`),
   KEY `idx_user_book_date` (`id_user`,`id_book`,`date`)
-) ENGINE=MyISAM AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=434 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `reading_progress`
@@ -1619,7 +1803,248 @@ INSERT INTO `reading_progress` (`id`, `date`, `pages`, `id_book`, `id_user`) VAL
 (189, '2024-11-02', 96, 57, 1),
 (190, '2024-11-04', 144, 57, 1),
 (191, '2024-11-05', 100, 57, 1),
-(192, '2024-11-06', 76, 57, 1);
+(192, '2024-11-06', 76, 57, 1),
+(193, '2024-01-22', 45, 1, 6),
+(194, '2024-01-23', 89, 1, 6),
+(195, '2024-01-24', 112, 1, 6),
+(196, '2024-01-25', 156, 1, 6),
+(197, '2024-01-26', 198, 1, 6),
+(198, '2024-01-28', 234, 1, 6),
+(199, '2024-01-30', 276, 1, 6),
+(200, '2024-02-01', 102, 1, 6),
+(201, '2024-02-03', 67, 1, 6),
+(202, '2024-02-04', 45, 1, 6),
+(203, '2024-02-05', 31, 1, 6),
+(204, '2024-02-06', 67, 15, 6),
+(205, '2024-02-08', 94, 15, 6),
+(206, '2024-02-10', 123, 15, 6),
+(207, '2024-02-12', 167, 15, 6),
+(208, '2024-02-15', 203, 15, 6),
+(209, '2024-02-18', 145, 15, 6),
+(210, '2024-02-20', 86, 15, 6),
+(211, '2024-02-21', 89, 2, 6),
+(212, '2024-02-23', 134, 2, 6),
+(213, '2024-02-26', 156, 2, 6),
+(214, '2024-03-02', 110, 2, 6),
+(215, '2024-03-03', 78, 3, 6),
+(216, '2024-03-05', 145, 3, 6),
+(217, '2024-03-08', 167, 3, 6),
+(218, '2024-03-12', 110, 3, 6),
+(219, '2024-03-13', 89, 4, 6),
+(220, '2024-03-16', 156, 4, 6),
+(221, '2024-03-20', 189, 4, 6),
+(222, '2024-03-25', 230, 4, 6),
+(223, '2024-03-26', 102, 19, 6),
+(224, '2024-03-29', 178, 19, 6),
+(225, '2024-04-02', 201, 19, 6),
+(226, '2024-04-08', 182, 19, 6),
+(227, '2024-04-09', 134, 20, 6),
+(228, '2024-04-12', 189, 20, 6),
+(229, '2024-04-16', 234, 20, 6),
+(230, '2024-04-22', 236, 20, 6),
+(231, '2024-04-23', 67, 27, 6),
+(232, '2024-04-25', 89, 27, 6),
+(233, '2024-04-28', 145, 27, 6),
+(234, '2024-05-02', 178, 27, 6),
+(235, '2024-05-06', 203, 27, 6),
+(236, '2024-05-10', 159, 27, 6),
+(237, '2024-05-11', 89, 6, 6),
+(238, '2024-05-14', 134, 6, 6),
+(239, '2024-05-17', 156, 6, 6),
+(240, '2024-05-20', 77, 6, 6),
+(241, '2024-05-21', 102, 7, 6),
+(242, '2024-05-25', 145, 7, 6),
+(243, '2024-05-29', 178, 7, 6),
+(244, '2024-06-02', 167, 7, 6),
+(245, '2024-06-03', 123, 18, 6),
+(246, '2024-06-07', 189, 18, 6),
+(247, '2024-06-11', 234, 18, 6),
+(248, '2024-06-15', 45, 18, 6),
+(249, '2024-06-16', 89, 37, 6),
+(250, '2024-06-20', 156, 37, 6),
+(251, '2024-06-25', 187, 37, 6),
+(252, '2024-06-26', 78, 41, 6),
+(253, '2024-06-30', 134, 41, 6),
+(254, '2024-07-05', 204, 41, 6),
+(255, '2024-07-06', 67, 14, 6),
+(256, '2024-07-08', 89, 14, 6),
+(257, '2024-07-11', 123, 14, 6),
+(258, '2024-07-14', 145, 14, 6),
+(259, '2024-07-17', 167, 14, 6),
+(260, '2024-07-20', 189, 14, 6),
+(261, '2024-07-23', 203, 14, 6),
+(262, '2024-02-15', 89, 43, 7),
+(263, '2024-02-20', 165, 43, 7),
+(264, '2024-02-21', 134, 44, 7),
+(265, '2024-02-27', 210, 44, 7),
+(266, '2024-02-28', 156, 45, 7),
+(267, '2024-03-05', 149, 45, 7),
+(268, '2024-03-06', 123, 35, 7),
+(269, '2024-03-12', 225, 35, 7),
+(270, '2024-03-13', 145, 38, 7),
+(271, '2024-03-22', 326, 38, 7),
+(272, '2024-03-23', 167, 40, 7),
+(273, '2024-04-02', 272, 40, 7),
+(274, '2024-04-03', 134, 60, 7),
+(275, '2024-04-10', 255, 60, 7),
+(276, '2024-04-11', 89, 61, 7),
+(277, '2024-04-14', 145, 61, 7),
+(278, '2024-04-17', 167, 61, 7),
+(279, '2024-04-20', 203, 61, 7),
+(280, '2024-01-25', 78, 42, 8),
+(281, '2024-01-28', 134, 42, 8),
+(282, '2024-02-01', 189, 42, 8),
+(283, '2024-02-05', 234, 42, 8),
+(284, '2024-02-08', 267, 42, 8),
+(285, '2024-02-12', 301, 42, 8),
+(286, '2024-02-15', 356, 42, 8),
+(287, '2024-02-16', 89, 65, 8),
+(288, '2024-02-20', 167, 65, 8),
+(289, '2024-02-25', 245, 65, 8),
+(290, '2024-03-02', 308, 65, 8),
+(291, '2024-03-08', 100, 65, 8),
+(292, '2024-03-09', 102, 50, 8),
+(293, '2024-03-14', 178, 50, 8),
+(294, '2024-03-19', 234, 50, 8),
+(295, '2024-03-25', 221, 50, 8),
+(296, '2024-03-26', 123, 51, 8),
+(297, '2024-03-30', 189, 51, 8),
+(298, '2024-04-05', 132, 51, 8),
+(299, '2024-04-06', 134, 46, 8),
+(300, '2024-04-15', 278, 46, 8),
+(301, '2024-04-16', 145, 48, 8),
+(302, '2024-04-28', 350, 48, 8),
+(303, '2024-04-29', 167, 49, 8),
+(304, '2024-05-15', 393, 49, 8),
+(305, '2024-05-16', 178, 47, 8),
+(306, '2024-05-24', 170, 47, 8),
+(307, '2024-05-25', 189, 58, 8),
+(308, '2024-06-05', 212, 58, 8),
+(309, '2024-06-06', 201, 33, 8),
+(310, '2024-06-20', 384, 33, 8),
+(311, '2024-06-21', 234, 34, 8),
+(312, '2024-07-08', 428, 34, 8),
+(313, '2024-07-09', 89, 57, 8),
+(314, '2024-07-12', 145, 57, 8),
+(315, '2024-07-15', 167, 57, 8),
+(316, '2024-03-10', 134, 62, 9),
+(317, '2024-03-20', 355, 62, 9),
+(318, '2024-03-21', 145, 63, 9),
+(319, '2024-03-30', 313, 63, 9),
+(320, '2024-03-31', 167, 64, 9),
+(321, '2024-04-07', 189, 64, 9),
+(322, '2024-04-08', 156, 69, 9),
+(323, '2024-04-16', 218, 69, 9),
+(324, '2024-04-17', 178, 70, 9),
+(325, '2024-04-26', 234, 70, 9),
+(326, '2024-04-27', 89, 72, 9),
+(327, '2024-04-30', 145, 72, 9),
+(328, '2024-05-03', 109, 72, 9),
+(329, '2024-03-01', 134, 21, 10),
+(330, '2024-03-06', 189, 21, 10),
+(331, '2024-03-12', 234, 21, 10),
+(332, '2024-03-18', 227, 21, 10),
+(333, '2024-03-19', 145, 22, 10),
+(334, '2024-03-25', 203, 22, 10),
+(335, '2024-03-30', 267, 22, 10),
+(336, '2024-04-05', 196, 22, 10),
+(337, '2024-04-06', 167, 23, 10),
+(338, '2024-04-12', 234, 23, 10),
+(339, '2024-04-18', 289, 23, 10),
+(340, '2024-04-25', 221, 23, 10),
+(341, '2024-04-26', 178, 24, 10),
+(342, '2024-05-02', 256, 24, 10),
+(343, '2024-05-08', 312, 24, 10),
+(344, '2024-05-12', 131, 24, 10),
+(345, '2024-05-13', 189, 31, 10),
+(346, '2024-05-20', 151, 31, 10),
+(347, '2024-05-21', 201, 32, 10),
+(348, '2024-05-27', 124, 32, 10),
+(349, '2024-05-28', 89, 28, 10),
+(350, '2024-06-03', 167, 28, 10),
+(351, '2024-06-09', 234, 28, 10),
+(352, '2024-06-15', 276, 28, 10),
+(353, '2024-06-16', 123, 71, 10),
+(354, '2024-06-22', 80, 71, 10),
+(355, '2024-06-23', 134, 75, 10),
+(356, '2024-06-30', 234, 75, 10),
+(357, '2024-07-08', 248, 75, 10),
+(358, '2024-01-10', 89, 5, 11),
+(359, '2024-01-15', 167, 5, 11),
+(360, '2024-01-20', 234, 5, 11),
+(361, '2024-01-25', 240, 5, 11),
+(362, '2024-01-26', 123, 8, 11),
+(363, '2024-02-01', 189, 8, 11),
+(364, '2024-02-06', 267, 8, 11),
+(365, '2024-02-10', 221, 8, 11),
+(366, '2024-02-11', 134, 10, 11),
+(367, '2024-02-17', 203, 10, 11),
+(368, '2024-02-23', 278, 10, 11),
+(369, '2024-02-28', 137, 10, 11),
+(370, '2024-03-01', 145, 11, 11),
+(371, '2024-03-08', 234, 11, 11),
+(372, '2024-03-14', 289, 11, 11),
+(373, '2024-03-18', 92, 11, 11),
+(374, '2024-03-19', 156, 12, 11),
+(375, '2024-03-26', 267, 12, 11),
+(376, '2024-04-02', 345, 12, 11),
+(377, '2024-04-08', 198, 12, 11),
+(378, '2024-04-09', 167, 13, 11),
+(379, '2024-04-17', 289, 13, 11),
+(380, '2024-04-25', 360, 13, 11),
+(381, '2024-04-26', 178, 16, 11),
+(382, '2024-05-04', 301, 16, 11),
+(383, '2024-05-12', 347, 16, 11),
+(384, '2024-05-13', 189, 17, 11),
+(385, '2024-05-22', 324, 17, 11),
+(386, '2024-05-30', 336, 17, 11),
+(387, '2024-05-31', 240, 9, 11),
+(388, '2024-06-03', 201, 25, 11),
+(389, '2024-06-10', 345, 25, 11),
+(390, '2024-06-18', 225, 25, 11),
+(391, '2024-06-19', 234, 26, 11),
+(392, '2024-07-05', 521, 26, 11),
+(393, '2024-07-06', 267, 66, 11),
+(394, '2024-07-20', 380, 66, 11),
+(395, '2024-07-21', 114, 36, 11),
+(396, '2024-07-23', 74, 39, 11),
+(397, '2024-07-24', 289, 52, 11),
+(398, '2024-07-30', 58, 52, 11),
+(399, '2024-07-31', 283, 53, 11),
+(400, '2024-08-06', 76, 54, 11),
+(401, '2024-08-07', 80, 55, 11),
+(402, '2024-08-08', 324, 56, 11),
+(403, '2024-08-20', 234, 56, 11),
+(404, '2024-08-21', 145, 76, 11),
+(405, '2024-08-25', 180, 76, 11),
+(406, '2024-03-15', 156, 73, 12),
+(407, '2024-03-22', 189, 73, 12),
+(408, '2024-03-23', 167, 74, 12),
+(409, '2024-03-30', 178, 74, 12),
+(410, '2024-03-31', 134, 77, 12),
+(411, '2024-04-06', 144, 77, 12),
+(412, '2024-04-07', 189, 59, 12),
+(413, '2024-04-14', 267, 59, 12),
+(414, '2024-04-21', 345, 59, 12),
+(415, '2024-04-28', 219, 59, 12),
+(416, '2024-04-29', 178, 68, 12),
+(417, '2024-05-05', 234, 68, 12),
+(418, '2024-05-12', 289, 68, 12),
+(419, '2024-05-18', 187, 68, 12),
+(420, '2024-02-01', 134, 61, 13),
+(421, '2024-02-12', 355, 61, 13),
+(422, '2024-02-13', 145, 62, 13),
+(423, '2024-02-25', 344, 62, 13),
+(424, '2024-02-26', 167, 63, 13),
+(425, '2024-03-08', 291, 63, 13),
+(426, '2024-03-09', 178, 64, 13),
+(427, '2024-03-17', 178, 64, 13),
+(428, '2024-03-18', 189, 60, 13),
+(429, '2024-03-27', 200, 60, 13),
+(430, '2024-03-28', 201, 78, 13),
+(431, '2024-04-08', 234, 78, 13),
+(432, '2024-04-09', 234, 79, 13),
+(433, '2024-04-15', 186, 79, 13);
 
 -- --------------------------------------------------------
 
@@ -1664,7 +2089,7 @@ CREATE TABLE IF NOT EXISTS `review` (
   PRIMARY KEY (`id`),
   KEY `id_book` (`id_book`),
   KEY `id_user` (`id_user`)
-) ;
+) ENGINE=MyISAM AUTO_INCREMENT=171 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `review`
@@ -1766,7 +2191,81 @@ INSERT INTO `review` (`id`, `text`, `rating`, `date_created`, `id_book`, `id_use
 (93, 'Perspectiva conmovedora de Warner. Añade profundidad a su personaje y a su relación con Juliette.', '7.86', '2025-04-13', 54, 2),
 (94, 'Conmovedora mirada al interior de Warner. Añade profundidad emocional a su personaje.', '8.14', '2025-04-13', 55, 2),
 (95, 'Química explosiva entre los protagonistas. Mundo construido de manera fascinante.', '9.21', '2025-04-13', 56, 2),
-(96, 'Historia intensa con personajes complejos. La dinámica de poder está bien lograda.', '7.93', '2025-04-13', 57, 2);
+(96, 'Historia intensa con personajes complejos. La dinámica de poder está bien lograda.', '7.93', '2025-04-13', 57, 2),
+(97, 'Simplemente espectacular. Una de las mejores historias de fantasía que he leído. La construcción del mundo es impresionante.', '9.50', '2025-06-05', 1, 6),
+(98, 'Superó todas mis expectativas. El final me dejó devastado.', '10.00', '2025-06-05', 15, 6),
+(99, 'Celaena es un personaje increíble. Las intrigas políticas están muy bien desarrolladas.', '8.00', '2025-06-05', 2, 6),
+(100, 'La evolución de los personajes es notable. Los giros argumentales mantienen en vilo.', '8.50', '2025-06-05', 3, 6),
+(101, 'La introducción de nuevos personajes como Rowan es brillante. Una obra maestra.', '9.50', '2025-06-05', 4, 6),
+(102, 'Poppy es una protagonista fascinante. La evolución de su relación con Casteel es perfecta.', '9.00', '2025-06-05', 19, 6),
+(103, 'Más acción, más romance, más revelaciones. No pude soltarlo.', '9.50', '2025-06-05', 20, 6),
+(104, 'La alomancia es fascinante. La construcción del mundo es excepcional.', '8.50', '2025-06-05', 27, 6),
+(105, 'La evolución de Feyre es fascinante. Los giros finales son impactantes.', '8.00', '2025-06-05', 6, 6),
+(106, 'La Corte de la Noche es fascinante. El desarrollo de personajes es magistral.', '10.00', '2025-06-05', 7, 6),
+(107, 'La premisa es original. Paedyn es una protagonista carismática.', '8.00', '2025-06-05', 18, 6),
+(108, 'La evolución de Paedyn es excelente. Los nuevos giros mantienen el interés.', '8.50', '2025-06-05', 37, 6),
+(109, 'La ambientación es fascinante. Nunca sabes qué es real y qué es espectáculo.', '9.00', '2025-06-05', 41, 6),
+(110, 'La dinámica de poder está muy bien ejecutada. Los personajes tienen profundidad.', '8.50', '2025-06-05', 43, 7),
+(111, 'Las estrategias políticas son fascinantes. El desarrollo emocional es notable.', '8.80', '2025-06-05', 44, 7),
+(112, 'Resolución satisfactoria con giros inesperados. La evolución de ambos personajes es notable.', '9.20', '2025-06-05', 45, 7),
+(113, 'La voz narrativa es fresca y conmovedora. El poder destructivo como metáfora es brillante.', '8.50', '2025-06-05', 35, 7),
+(114, 'Juliette toma control de su vida de manera inspiradora. El estilo poético sigue cautivando.', '9.00', '2025-06-05', 38, 7),
+(115, 'Las alianzas inesperadas añaden dinamismo. La evolución de Juliette alcanza nuevas dimensiones.', '8.80', '2025-06-05', 40, 7),
+(116, 'La química entre Ava y Alex es electrizante. Perfecto equilibrio entre drama y romance.', '8.50', '2025-06-05', 60, 7),
+(117, 'Combina perfectamente fantasía oscura con elementos de horror. Los personajes son complejos y fascinantes.', '9.50', '2025-06-05', 42, 8),
+(118, 'La continuación perfecta. La mitología se expande de manera fascinante.', '9.20', '2025-06-05', 65, 8),
+(119, 'La mitología creada es sorprendentemente original. La evolución desde enemigos a aliados es creíble.', '9.80', '2025-06-05', 50, 8),
+(120, 'Mayor desarrollo de personajes y nuevas amenazas elevan la tensión. La mitología se expande coherentemente.', '10.00', '2025-06-05', 51, 8),
+(121, 'Explora brillantemente las líneas difusas entre lo correcto y lo incorrecto. La simbología religiosa está integrada inteligentemente.', '9.00', '2025-06-05', 46, 8),
+(122, 'El sistema de vampirismo es original. La tensión romántica está muy bien construida.', '9.20', '2025-06-05', 48, 8),
+(123, 'La dinámica entre Killian y Glyndon es fascinante. El ambiente universitario con elementos de mafia es original.', '8.20', '2025-06-05', 49, 8),
+(124, 'Thriller romántico oscuro con giros inesperados. Los guiños al material original son inteligentes.', '8.80', '2025-06-05', 47, 8),
+(125, 'La reinterpretación del personaje clásico es original y convincente. Su monólogo interno revela capas inesperadas.', '9.50', '2025-06-05', 58, 8),
+(126, 'Explora los límites de la posesión y el consentimiento. Relación tóxica pero fascinante.', '8.50', '2025-06-05', 33, 8),
+(127, 'Los roles invertidos añaden dimensión interesante. Los giros argumentales son impredecibles.', '8.80', '2025-06-05', 34, 8),
+(128, 'Dante es un personaje complejo y fascinante. La tensión romántica está perfectamente construida.', '8.50', '2025-06-05', 62, 9),
+(129, 'Christian y Delilah tienen una química increíble. Los conflictos profesionales añaden tensión.', '8.80', '2025-06-05', 63, 9),
+(130, 'Julian y Elise tienen un desarrollo de relación fascinante. El contraste entre ambos personajes es perfecto.', '9.00', '2025-06-05', 64, 9),
+(131, 'Tella es una protagonista fascinante. La búsqueda de Legend añade misterio y tensión.', '8.50', '2025-06-05', 69, 9),
+(132, 'Las hermanas Dragna enfrentan su desafío final de manera épica. Las revelaciones sobre Legend son fascinantes.', '9.20', '2025-06-05', 70, 9),
+(133, 'Poppy evoluciona como líder de manera impresionante. Las revelaciones sobre su pasado cambian todo.', '9.50', '2025-06-05', 21, 10),
+(134, 'La mitología se profundiza fascinantemente. Los nuevos personajes añaden dimensiones interesantes.', '9.20', '2025-06-05', 22, 10),
+(135, 'Las escenas de batalla están magníficamente escritas. Los momentos emocionales son devastadores.', '9.80', '2025-06-05', 23, 10),
+(136, 'Muestra las secuelas psicológicas de la guerra. La vulnerabilidad de los personajes es conmovedora.', '9.50', '2025-06-05', 24, 10),
+(137, 'La química entre los protagonistas es palpable desde el primer encuentro. Mundo construido con detalle.', '8.50', '2025-06-05', 31, 10),
+(138, 'La tensión emocional está bien lograda. Los obstáculos que enfrentan son creíbles.', '8.80', '2025-06-05', 32, 10),
+(139, 'La evolución de Vin y Elend como líderes es fascinante. Los nuevos aspectos del sistema de magia son lógicos.', '8.00', '2025-06-05', 28, 10),
+(140, 'Espectáculo de magia exclusivo fascinante. La promesa de un deseo añade tensión.', '8.50', '2025-06-05', 71, 10),
+(141, 'Lyra es una protagonista única. La maldición de Zeus añade una dimensión trágica interesante.', '8.80', '2025-06-05', 75, 10),
+(142, 'La transformación de Aelin es impresionante. Los diálogos entre Aelin y Rowan tienen química perfecta.', '10.00', '2025-06-05', 5, 11),
+(143, 'Batallas épicas y momentos emocionales intensos. El Círculo Íntimo se ha vuelto mi grupo favorito.', '9.50', '2025-06-05', 8, 11),
+(144, 'Acción incesante y momentos emocionales devastadores. Este libro me hizo llorar varias veces.', '10.00', '2025-06-05', 10, 11),
+(145, 'Ritmo más lento pero necesario para el desarrollo. Los capítulos de Manon son los mejores.', '8.20', '2025-06-05', 11, 11),
+(146, 'Sarah J. Maas demuestra por qué es la reina del Romantasy. El epílogo es perfecto.', '10.00', '2025-06-05', 12, 11),
+(147, 'Nesta se convierte en uno de los personajes más complejos. Su romance con Cassian tiene tensión perfecta.', '9.00', '2025-06-05', 13, 11),
+(148, 'La evolución de la relación Bryce-Hunt es conmovedora. Los nuevos elementos mitológicos añaden capas.', '9.20', '2025-06-05', 16, 11),
+(149, 'Las conexiones entre universos son brillantes. Final electrizante que abre posibilidades infinitas.', '10.00', '2025-06-05', 17, 11),
+(150, 'Menos sustancial que los libros principales pero encantadora para fans.', '6.50', '2025-06-05', 9, 11),
+(151, 'Las revelaciones sobre los orígenes recontextualizan toda la historia. Los momentos íntimos son emotivos.', '8.50', '2025-06-05', 25, 11),
+(152, 'Los personajes secundarios ganan protagonismo. Los nuevos poderes abren posibilidades interesantes.', '9.00', '2025-06-05', 26, 11),
+(153, 'Paedyn estaba lista para una sentencia de muerte, no un compromiso. La premisa es fascinante.', '8.80', '2025-06-05', 66, 11),
+(154, 'Ver los eventos a través de los ojos de Warner añade capas a la historia principal.', '8.50', '2025-06-05', 36, 11),
+(155, 'Da mayor profundidad a su compleja relación durante los eventos del segundo libro.', '8.00', '2025-06-05', 39, 11),
+(156, 'Juliette ha regresado con nuevo propósito. La narrativa poética sigue siendo impactante.', '9.20', '2025-06-05', 52, 11),
+(157, 'La batalla final se acerca. Satisfactoria evolución de todos los personajes.', '10.00', '2025-06-05', 53, 11),
+(158, 'Su dedicación y amor por Juliette son palpables en cada página.', '8.50', '2025-06-05', 54, 11),
+(159, 'Añade profundidad emocional a su personaje y muestra su evolución.', '8.80', '2025-06-05', 55, 11),
+(160, 'Mundo construido de manera fascinante con mitología original. La tensión romántica es adictiva.', '9.50', '2025-06-05', 56, 11),
+(161, 'Evangeline continúa su peligrosa alianza. Atrapada entre mentiras y verdades a medias.', '8.80', '2025-06-05', 73, 12),
+(162, 'Evangeline viajó al Glorioso Norte buscando su felices para siempre. Final devastador y hermoso.', '9.50', '2025-06-05', 74, 12),
+(163, 'Jude debe regresar al reino después del exilio. La evolución de ambos personajes es notable.', '9.20', '2025-06-05', 77, 12),
+(164, 'Sera ha regresado con sus seres queridos pero los recuerdos la atormentan. Desarrollo emocional excelente.', '9.80', '2025-06-05', 59, 12),
+(165, 'Rhys como guardaespaldas y Bridget como princesa tienen una tensión increíble. Conflicto entre deber y deseo.', '9.00', '2025-06-05', 61, 13),
+(166, 'Dante Russo es despiadado pero fascinante. El matrimonio arreglado se convierte en algo más profundo.', '8.80', '2025-06-05', 62, 13),
+(167, 'Christian debe enfrentar el único fracaso de su pasado: haber dejado ir a Delilah.', '9.20', '2025-06-05', 63, 13),
+(168, 'Julian añade a Elise a su lista de adquisiciones, pero ella no se dejará poseer fácilmente.', '8.50', '2025-06-05', 64, 13),
+(169, 'Alex solo tiene una regla: nunca involucrarse emocionalmente. Ava cambia todo.', '8.80', '2025-06-05', 60, 13),
+(170, 'La línea entre el odio y el amor es más delgada de lo que pensaban. Tensión sexual increíble.', '9.50', '2025-06-05', 78, 13);
 
 -- --------------------------------------------------------
 
@@ -1930,7 +2429,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `nickName` (`nickName`),
   KEY `id_role` (`id_role`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `user`
@@ -1938,10 +2437,18 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 INSERT INTO `user` (`id`, `name`, `last_name1`, `last_name2`, `birthdate`, `union_date`, `nickName`, `password`, `id_role`) VALUES
 (1, 'Jose Ayrton', 'Rosell', 'Bonavina', '2000-08-06', '2024-03-30', 'joss0102', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 1),
-(2, 'David', 'Fernandez', 'Valbuena', '2003-08-06', '2024-03-30', 'DavidFdz', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 1),
+(2, 'David', 'Fernandez', 'Valbuena', '2003-05-24', '2024-03-30', 'DavidFdz', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 1),
 (3, 'Dumi', 'Tomas', '', '2002-09-14', '2024-03-30', 'dumitxmss', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 2),
 (4, 'Isabel', 'Isidro', 'Fernandez', '2002-04-18', '2024-03-30', 'issafeez', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 2),
-(5, 'Helio', 'Rebato', 'Gamez', '2002-07-25', '2024-03-30', 'heliiovk_', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 2);
+(5, 'Helio', 'Rebato', 'Gamez', '2002-07-25', '2024-03-30', 'heliiovk_', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', 2),
+(6, 'Pablo', 'Vanero', 'Romero', '1995-03-15', '2024-01-15', 'pablovanero', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(7, 'Rodrigo', 'Rodriguez', 'Díaz', '1998-07-22', '2024-02-10', 'rodrigorod', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(8, 'Victor', 'Fernandez', 'Lopez', '1996-11-08', '2024-01-20', 'victorfernandez', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(9, 'Miguel', 'Romero', 'Flores', '1999-04-12', '2024-03-05', 'miguelromero', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(10, 'Erick', 'Fritz', '', '1997-09-30', '2024-02-28', 'erickfritz', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(11, 'Silvia', 'Arica', 'Calama', '1994-12-03', '2024-01-08', 'silviaarica', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(12, 'Paula', 'Pino', 'Medina', '2000-06-18', '2024-03-12', 'paulapino', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2),
+(13, 'Rigoberta', 'Donoso', 'Toro', '1993-10-25', '2024-01-30', 'rigobertadonoso', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 2);
 
 -- --------------------------------------------------------
 
@@ -2060,7 +2567,89 @@ INSERT INTO `user_book_description` (`id_user`, `id_book`, `custom_description`)
 (2, 54, 'Un breve pero intenso análisis de la conexión emocional más allá de las circunstancias externas. La novela corta descompone las barreras entre vulnerabilidad y fortaleza, presentando una mirada íntima a la búsqueda del amor en medio del caos.'),
 (2, 55, 'Un interludio narrativo que profundiza en la complejidad psicológica de un personaje tradicionalmente visto como periférico. La novela corta desafía las nociones simplistas de amor y búsqueda, presentando una mirada íntima a la determinación y la conexión emocional.'),
 (2, 56, 'Una exploración magistral de las dinámicas de poder, vulnerabilidad y transformación personal. La novela desafía las nociones tradicionales de romance y sumisión, presentando una relación compleja que se desarrolla más allá de las expectativas iniciales.'),
-(2, 57, 'Una exploración profunda de los límites entre el sacrificio y la conexión personal, desafiando las nociones tradicionales de libre albedrío y destino. La novela presenta un mundo donde los contratos sobrenaturales se convierten en metáforas de las relaciones humanas más complejas.');
+(2, 57, 'Una exploración profunda de los límites entre el sacrificio y la conexión personal, desafiando las nociones tradicionales de libre albedrío y destino. La novela presenta un mundo donde los contratos sobrenaturales se convierten en metáforas de las relaciones humanas más complejas.'),
+(6, 1, 'Una obra maestra que me enganchó desde la primera página. La evolución de Violet es increíble.'),
+(6, 15, 'Aún mejor que el primero. El desarrollo de los personajes es magistral.'),
+(6, 2, 'Un inicio prometedor con una protagonista fascinante.'),
+(6, 3, 'La saga mejora considerablemente en esta segunda entrega.'),
+(6, 4, 'Punto de inflexión de la saga. Todo cambia aquí.'),
+(6, 19, 'Una historia adictiva con personajes complejos y plot twists increíbles.'),
+(6, 20, 'Secuela que supera al original en todos los aspectos.'),
+(6, 27, 'Sistema de magia innovador. Sanderson es un genio.'),
+(6, 6, 'Hermosa adaptación de La Bella y la Bestia con un giro oscuro.'),
+(6, 7, 'Mejor que el primero. Rhysand se convierte en el mejor personaje.'),
+(6, 18, 'Mezcla interesante de Los Juegos del Hambre con elementos de fantasía.'),
+(6, 37, 'Secuela que mejora el worldbuilding y desarrollo de personajes.'),
+(6, 41, 'Mundo mágico y atmosférico con giros inesperados.'),
+(6, 14, 'Fascinante mezcla de fantasía urbana con elementos únicos.'),
+(6, 29, 'Protagonista inteligente en un mundo feérico oscuro y fascinante.'),
+(7, 43, 'Química electrizante entre protagonistas. Enemigos a amantes perfectos.'),
+(7, 44, 'Intriga política brillante. La tensión aumenta considerablemente.'),
+(7, 45, 'Final perfecto para una trilogía magistral.'),
+(7, 35, 'Estilo poético único. Juliette es una protagonista compleja.'),
+(7, 38, 'Evolución impresionante de la protagonista. Acción y romance equilibrados.'),
+(7, 40, 'Tercera parte llena de revelaciones y desarrollo del mundo.'),
+(7, 60, 'Romance contemporáneo intenso con personajes complejos.'),
+(7, 61, 'Secuela que mantiene la intensidad y profundiza en los personajes.'),
+(8, 42, 'Narrativa cruda y poderosa. Fantasía oscura en su máxima expresión.'),
+(8, 65, 'Secuela que mantiene la calidad y oscuridad del original.'),
+(8, 50, 'Mundo complejo con personajes fascinantes y química electrizante.'),
+(8, 51, 'Secuela que supera al original. Más acción y desarrollo de personajes.'),
+(8, 46, 'Mundo rico con mitología angelical bien desarrollada.'),
+(8, 48, 'Sistema de magia único con personajes complejos y tensión romántica.'),
+(8, 49, 'Química tóxica pero adictiva. Dinámica de poder intrigante.'),
+(8, 47, 'Versión adulta y retorcida del clásico cuento. Química eléctrica.'),
+(8, 58, 'Profundidad psicológica del Capitán Garfio fascinante.'),
+(8, 33, 'Historia oscura de obsesión y amor peligroso.'),
+(8, 34, 'Continuación intensa que mantiene la tensión psicológica.'),
+(8, 57, 'Historia intensa con personajes complejos y dinámica de poder.'),
+(9, 62, 'Romance contemporáneo intenso con desarrollo excelente.'),
+(9, 63, 'Segundo libro que mantiene la calidad de la serie.'),
+(9, 64, 'Cierre satisfactorio para la trilogía de los Reyes.'),
+(9, 69, 'Secuela que profundiza en la magia y los secretos familiares.'),
+(9, 70, 'Cierre épico de la trilogía con giros inesperados.'),
+(9, 72, 'Spin-off encantador con magia de cuentos de hadas.'),
+(10, 21, 'Tercera entrega que eleva la saga a nuevas alturas.'),
+(10, 22, 'Cuarta entrega que expande magistralmente el mundo.'),
+(10, 23, 'Confrontación épica que justifica toda la construcción previa.'),
+(10, 24, 'Libro de reconstrucción emocional conmovedor.'),
+(10, 31, 'Historia de amor prohibido con química palpable desde el inicio.'),
+(10, 32, 'Segunda parte que mantiene la magia del primero.'),
+(10, 28, 'Segunda entrega que profundiza en dilemas políticos y personajes.'),
+(10, 71, 'Spin-off místico con magia real entre los trucos.'),
+(10, 75, 'Mitología griega moderna con protagonista maldita fascinante.'),
+(11, 5, 'Intenso, emocionante y lleno de momentos épicos.'),
+(11, 8, 'Conclusión emocionante con batallas épicas y momentos intensos.'),
+(11, 10, 'Uno de los mejores libros de la saga con acción incesante.'),
+(11, 11, 'Intenso y emocional, con capítulos de Manon brillantes.'),
+(11, 12, 'Conclusión épica y satisfactoria para la saga.'),
+(11, 13, 'Historia de redención poderosa con Nesta como protagonista.'),
+(11, 16, 'Expande magistralmente el mundo creado en el primer libro.'),
+(11, 17, 'El mejor libro de la saga con conexiones fascinantes.'),
+(11, 9, 'Historia corta y dulce para fans de la saga.'),
+(11, 25, 'Conclusión satisfactoria para esta etapa de la saga.'),
+(11, 26, 'Nueva entrega que mantiene la calidad con personajes secundarios.'),
+(11, 66, 'Tercer libro de Powerless con evolución excelente de Paedyn.'),
+(11, 36, 'Perspectiva fascinante de Warner que humaniza al villano.'),
+(11, 39, 'Breve historia que explora momentos clave entre Warner y Juliette.'),
+(11, 52, 'Evolución notable de la protagonista con narrativa poética.'),
+(11, 53, 'Conclusión emocionante de la saga principal.'),
+(11, 54, 'Perspectiva conmovedora de Warner añadiendo profundidad.'),
+(11, 55, 'Conmovedora mirada al interior de Warner.'),
+(11, 56, 'Química explosiva entre protagonistas con mundo fascinante.'),
+(11, 76, 'Historia intensa con personajes complejos y dinámica de poder.'),
+(12, 73, 'Secuela que profundiza en la magia y maldiciones ancestrales.'),
+(12, 74, 'Cierre épico con revelaciones sobre el precio de los cuentos de hadas.'),
+(12, 77, 'Conclusión perfecta para Jude y Cardan con giros políticos.'),
+(12, 59, 'Octava entrega que mantiene la calidad de la saga épica.'),
+(12, 68, 'Tercera entrega épica que continúa la saga de dragones.'),
+(13, 61, 'Secuela intensa que profundiza en la relación Rhys-Bridget.'),
+(13, 62, 'Romance intenso con Dante como protagonista vengativo.'),
+(13, 63, 'Christian como CEO implacable enfrentando su némesis.'),
+(13, 64, 'Julian como multimillonario que siempre quiere más.'),
+(13, 60, 'Alex como CEO frío que debe cuidar de la hermana de su mejor amigo.'),
+(13, 78, 'Josh y Jules en una relación de enemigos a amantes explosiva.'),
+(13, 79, 'Christian y Stella cierran la serie con secretos y mentiras.');
 
 -- --------------------------------------------------------
 
@@ -2203,7 +2792,89 @@ INSERT INTO `user_has_book` (`id_user`, `id_book`, `id_status`, `date_added`, `d
 (1, 74, 5, '2025-04-12', NULL, NULL),
 (1, 75, 5, '2025-04-12', NULL, NULL),
 (1, 76, 5, '2025-04-12', NULL, NULL),
-(1, 77, 3, '2025-03-30', NULL, NULL);
+(1, 77, 3, '2025-03-30', NULL, NULL),
+(6, 1, 2, '2024-01-20', '2024-01-22', '2024-02-05'),
+(6, 15, 2, '2024-02-06', '2024-02-06', '2024-02-20'),
+(6, 2, 2, '2024-02-21', '2024-02-21', '2024-03-02'),
+(6, 3, 2, '2024-03-03', '2024-03-03', '2024-03-12'),
+(6, 4, 2, '2024-03-13', '2024-03-13', '2024-03-25'),
+(6, 19, 2, '2024-03-26', '2024-03-26', '2024-04-08'),
+(6, 20, 2, '2024-04-09', '2024-04-09', '2024-04-22'),
+(6, 27, 2, '2024-04-23', '2024-04-23', '2024-05-10'),
+(6, 6, 2, '2024-05-11', '2024-05-11', '2024-05-20'),
+(6, 7, 2, '2024-05-21', '2024-05-21', '2024-06-02'),
+(6, 18, 2, '2024-06-03', '2024-06-03', '2024-06-15'),
+(6, 37, 2, '2024-06-16', '2024-06-16', '2024-06-25'),
+(6, 41, 2, '2024-06-26', '2024-06-26', '2024-07-05'),
+(6, 14, 2, '2024-07-06', '2024-07-06', '2025-06-05'),
+(6, 29, 5, '2024-07-15', NULL, NULL),
+(7, 43, 2, '2024-02-15', '2024-02-15', '2024-02-20'),
+(7, 44, 2, '2024-02-21', '2024-02-21', '2024-02-27'),
+(7, 45, 2, '2024-02-28', '2024-02-28', '2024-03-05'),
+(7, 35, 2, '2024-03-06', '2024-03-06', '2024-03-12'),
+(7, 38, 2, '2024-03-13', '2024-03-13', '2024-03-22'),
+(7, 40, 2, '2024-03-23', '2024-03-23', '2024-04-02'),
+(7, 60, 2, '2024-04-03', '2024-04-03', '2024-04-10'),
+(7, 61, 2, '2024-04-11', '2024-04-11', '2025-06-05'),
+(8, 42, 2, '2024-01-25', '2024-01-25', '2024-02-15'),
+(8, 65, 2, '2024-02-16', '2024-02-16', '2024-03-08'),
+(8, 50, 2, '2024-03-09', '2024-03-09', '2024-03-25'),
+(8, 51, 2, '2024-03-26', '2024-03-26', '2024-04-05'),
+(8, 46, 2, '2024-04-06', '2024-04-06', '2024-04-15'),
+(8, 48, 2, '2024-04-16', '2024-04-16', '2024-04-28'),
+(8, 49, 2, '2024-04-29', '2024-04-29', '2024-05-15'),
+(8, 47, 2, '2024-05-16', '2024-05-16', '2024-05-24'),
+(8, 58, 2, '2024-05-25', '2024-05-25', '2024-06-05'),
+(8, 33, 2, '2024-06-06', '2024-06-06', '2024-06-20'),
+(8, 34, 2, '2024-06-21', '2024-06-21', '2024-07-08'),
+(8, 57, 1, '2024-07-09', '2024-07-09', NULL),
+(9, 62, 2, '2024-03-10', '2024-03-10', '2024-03-20'),
+(9, 63, 2, '2024-03-21', '2024-03-21', '2024-03-30'),
+(9, 64, 2, '2024-03-31', '2024-03-31', '2024-04-07'),
+(9, 69, 2, '2024-04-08', '2024-04-08', '2024-04-16'),
+(9, 70, 2, '2024-04-17', '2024-04-17', '2024-04-26'),
+(9, 72, 2, '2024-04-27', '2024-04-27', '2025-06-05'),
+(10, 21, 2, '2024-03-01', '2024-03-01', '2024-03-18'),
+(10, 22, 2, '2024-03-19', '2024-03-19', '2024-04-05'),
+(10, 23, 2, '2024-04-06', '2024-04-06', '2024-04-25'),
+(10, 24, 2, '2024-04-26', '2024-04-26', '2024-05-12'),
+(10, 31, 2, '2024-05-13', '2024-05-13', '2024-05-20'),
+(10, 32, 2, '2024-05-21', '2024-05-21', '2024-05-27'),
+(10, 28, 2, '2024-05-28', '2024-05-28', '2024-06-15'),
+(10, 71, 2, '2024-06-16', '2024-06-16', '2024-06-22'),
+(10, 75, 2, '2024-06-23', '2024-06-23', '2024-07-08'),
+(11, 5, 2, '2024-01-10', '2024-01-10', '2024-01-25'),
+(11, 8, 2, '2024-01-26', '2024-01-26', '2024-02-10'),
+(11, 10, 2, '2024-02-11', '2024-02-11', '2024-02-28'),
+(11, 11, 2, '2024-03-01', '2024-03-01', '2024-03-18'),
+(11, 12, 2, '2024-03-19', '2024-03-19', '2024-04-08'),
+(11, 13, 2, '2024-04-09', '2024-04-09', '2024-04-25'),
+(11, 16, 2, '2024-04-26', '2024-04-26', '2024-05-12'),
+(11, 17, 2, '2024-05-13', '2024-05-13', '2024-05-30'),
+(11, 9, 2, '2024-05-31', '2024-05-31', '2024-06-02'),
+(11, 25, 2, '2024-06-03', '2024-06-03', '2024-06-18'),
+(11, 26, 2, '2024-06-19', '2024-06-19', '2024-07-05'),
+(11, 66, 2, '2024-07-06', '2024-07-06', '2024-07-20'),
+(11, 36, 2, '2024-07-21', '2024-07-21', '2024-07-22'),
+(11, 39, 2, '2024-07-23', '2024-07-23', '2024-07-23'),
+(11, 52, 2, '2024-07-24', '2024-07-24', '2024-07-30'),
+(11, 53, 2, '2024-07-31', '2024-07-31', '2024-08-05'),
+(11, 54, 2, '2024-08-06', '2024-08-06', '2024-08-06'),
+(11, 55, 2, '2024-08-07', '2024-08-07', '2024-08-07'),
+(11, 56, 2, '2024-08-08', '2024-08-08', '2024-08-20'),
+(11, 76, 2, '2024-08-21', '2024-08-21', '2025-06-05'),
+(12, 73, 2, '2024-03-15', '2024-03-15', '2024-03-22'),
+(12, 74, 2, '2024-03-23', '2024-03-23', '2024-03-30'),
+(12, 77, 2, '2024-03-31', '2024-03-31', '2024-04-06'),
+(12, 59, 2, '2024-04-07', '2024-04-07', '2024-04-28'),
+(12, 68, 2, '2024-04-29', '2024-04-29', '2025-06-05'),
+(13, 61, 2, '2024-02-01', '2024-02-01', '2024-02-12'),
+(13, 62, 2, '2024-02-13', '2024-02-13', '2024-02-25'),
+(13, 63, 2, '2024-02-26', '2024-02-26', '2024-03-08'),
+(13, 64, 2, '2024-03-09', '2024-03-09', '2024-03-17'),
+(13, 60, 2, '2024-03-18', '2024-03-18', '2024-03-27'),
+(13, 78, 2, '2024-03-28', '2024-03-28', '2024-04-08'),
+(13, 79, 2, '2024-04-09', '2024-04-09', '2025-06-05');
 
 -- --------------------------------------------------------
 
@@ -2228,27 +2899,7 @@ INSERT INTO `user_role` (`id`, `name`) VALUES
 (2, 'client');
 
 -- --------------------------------------------------------
--- Tabla para almacenar las metas de lectura personalizadas por usuario
-DROP TABLE IF EXISTS `reading_goals`;
-CREATE TABLE IF NOT EXISTS `reading_goals` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `id_user` int NOT NULL,
-  `yearly` int NOT NULL DEFAULT 15,
-  `monthly` int NOT NULL DEFAULT 2,
-  `daily_pages` int NOT NULL DEFAULT 30,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_user_goals` (`id_user`),
-  CONSTRAINT `fk_user_reading_goals` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Insertar datos de muestra para los usuarios existentes
-INSERT INTO `reading_goals` (`id_user`, `yearly`, `monthly`, `daily_pages`) VALUES
-(1, 15, 2, 30),
-(2, 20, 3, 25),
-(3, 12, 1, 35),
-(4, 10, 1, 40),
-(5, 25, 3, 50);
--- --------------------------------------------------------
 --
 -- Estructura Stand-in para la vista `vw_book_complete_info`
 -- (Véase abajo para la vista actual)
@@ -2367,7 +3018,7 @@ CREATE TABLE IF NOT EXISTS `vw_user_reading_stats` (
 DROP TABLE IF EXISTS `vw_book_complete_info`;
 
 DROP VIEW IF EXISTS `vw_book_complete_info`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`Lectoria`@`localhost` SQL SECURITY DEFINER VIEW `vw_book_complete_info`  AS SELECT `b`.`id` AS `book_id`, `b`.`title` AS `book_title`, `b`.`pages` AS `book_pages`, `s`.`text` AS `synopsis`, group_concat(distinct concat(`a`.`name`,' ',coalesce(`a`.`last_name1`,''),' ',coalesce(`a`.`last_name2`,'')) separator ', ') AS `authors`, group_concat(distinct `g`.`name` separator ', ') AS `genres`, group_concat(distinct `sg`.`name` separator ', ') AS `sagas` FROM (((((((`book` `b` left join `synopsis` `s` on((`b`.`id` = `s`.`id_book`))) left join `book_has_author` `bha` on((`b`.`id` = `bha`.`id_book`))) left join `author` `a` on((`bha`.`id_author` = `a`.`id`))) left join `book_has_genre` `bhg` on((`b`.`id` = `bhg`.`id_book`))) left join `genre` `g` on((`bhg`.`id_genre` = `g`.`id`))) left join `book_has_saga` `bhs` on((`b`.`id` = `bhs`.`id_book`))) left join `saga` `sg` on((`bhs`.`id_saga` = `sg`.`id`))) GROUP BY `b`.`id`, `b`.`title`, `b`.`pages`, `s`.`text`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`Lectoria`@`localhost` SQL SECURITY DEFINER VIEW `vw_book_complete_info`  AS SELECT `b`.`id` AS `book_id`, `b`.`title` AS `book_title`, `b`.`pages` AS `book_pages`, `s`.`text` AS `synopsis`, group_concat(distinct concat(`a`.`name`,' ',coalesce(`a`.`last_name1`,''),' ',coalesce(`a`.`last_name2`,'')) separator ', ') AS `authors`, group_concat(distinct `g`.`name` separator ', ') AS `genres`, group_concat(distinct `sg`.`name` separator ', ') AS `sagas` FROM (((((((`book` `b` left join `synopsis` `s` on((`b`.`id` = `s`.`id_book`))) left join `book_has_author` `bha` on((`b`.`id` = `bha`.`id_book`))) left join `author` `a` on((`bha`.`id_author` = `a`.`id`))) left join `book_has_genre` `bhg` on((`b`.`id` = `bhg`.`id_book`))) left join `genre` `g` on((`bhg`.`id_genre` = `g`.`id`))) left join `book_has_saga` `bhs` on((`b`.`id` = `bhs`.`id_book`))) left join `saga` `sg` on((`bhs`.`id_saga` = `sg`.`id`))) GROUP BY `b`.`id`, `b`.`title`, `b`.`pages`, `s`.`text`;
 
 -- --------------------------------------------------------
 
@@ -2377,7 +3028,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`Lectoria`@`localhost` SQL SECURITY DEFINER V
 DROP TABLE IF EXISTS `vw_book_reviews`;
 
 DROP VIEW IF EXISTS `vw_book_reviews`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`Lectoria`@`localhost` SQL SECURITY DEFINER VIEW `vw_book_reviews`  AS SELECT `r`.`id` AS `review_id`, `b`.`id` AS `book_id`, `b`.`title` AS `book_title`, `u`.`id` AS `user_id`, `u`.`nickName` AS `user_nickname`, concat(`u`.`name`,' ',coalesce(`u`.`last_name1`,''),' ',coalesce(`u`.`last_name2`,'')) AS `user_full_name`, `r`.`text` AS `review_text`, `r`.`rating` AS `rating`, `r`.`date_created` AS `review_date`, group_concat(distinct concat(`a`.`name`,' ',coalesce(`a`.`last_name1`,''),' ',coalesce(`a`.`last_name2`,'')) separator ', ') AS `authors`, group_concat(distinct `g`.`name` separator ', ') AS `genres` FROM ((((((`review` `r` join `book` `b` on((`r`.`id_book` = `b`.`id`))) join `user` `u` on((`r`.`id_user` = `u`.`id`))) left join `book_has_author` `bha` on((`b`.`id` = `bha`.`id_book`))) left join `author` `a` on((`bha`.`id_author` = `a`.`id`))) left join `book_has_genre` `bhg` on((`b`.`id` = `bhg`.`id_book`))) left join `genre` `g` on((`bhg`.`id_genre` = `g`.`id`))) GROUP BY `r`.`id`, `b`.`id`, `b`.`title`, `u`.`id`, `u`.`nickName`, `user_full_name`, `r`.`text`, `r`.`rating`, `r`.`date_created`  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`Lectoria`@`localhost` SQL SECURITY DEFINER VIEW `vw_book_reviews`  AS SELECT `r`.`id` AS `review_id`, `b`.`id` AS `book_id`, `b`.`title` AS `book_title`, `u`.`id` AS `user_id`, `u`.`nickName` AS `user_nickname`, concat(`u`.`name`,' ',coalesce(`u`.`last_name1`,''),' ',coalesce(`u`.`last_name2`,'')) AS `user_full_name`, `r`.`text` AS `review_text`, `r`.`rating` AS `rating`, `r`.`date_created` AS `review_date`, group_concat(distinct concat(`a`.`name`,' ',coalesce(`a`.`last_name1`,''),' ',coalesce(`a`.`last_name2`,'')) separator ', ') AS `authors`, group_concat(distinct `g`.`name` separator ', ') AS `genres` FROM ((((((`review` `r` join `book` `b` on((`r`.`id_book` = `b`.`id`))) join `user` `u` on((`r`.`id_user` = `u`.`id`))) left join `book_has_author` `bha` on((`b`.`id` = `bha`.`id_book`))) left join `author` `a` on((`bha`.`id_author` = `a`.`id`))) left join `book_has_genre` `bhg` on((`b`.`id` = `bhg`.`id_book`))) left join `genre` `g` on((`bhg`.`id_genre` = `g`.`id`))) GROUP BY `r`.`id`, `b`.`id`, `b`.`title`, `u`.`id`, `u`.`nickName`, `user_full_name`, `r`.`text`, `r`.`rating`, `r`.`date_created`;
 
 -- --------------------------------------------------------
 
